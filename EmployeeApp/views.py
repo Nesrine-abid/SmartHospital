@@ -4,8 +4,8 @@ from rest_framework.parsers import JSONParser      # to parse the incoming data 
 from django.http.response import JsonResponse
 from django.http import HttpResponse
 
-from EmployeeApp.models import Departments, Employees, Patients
-from EmployeeApp.serializers import DepartmentSerializer, EmployeeSerializer, PatientsSerializer
+from EmployeeApp.models import Department, Employee, Patient
+from EmployeeApp.serializers import DepartmentSerializer, EmployeeSerializer, PatientSerializer
 
 from django.core.files.storage import default_storage  # to save the file (last api)
 
@@ -14,13 +14,13 @@ from django.core.files.storage import default_storage  # to save the file (last 
 def patientApi(request, id=0):
     # return all the records in json format
     if request.method == 'GET':
-        patients = Patients.objects.all()
-        patients_serializer = PatientsSerializer(patients, many=True)  # convert it into json format
+        patients = Patient.objects.all()
+        patients_serializer = PatientSerializer(patients, many=True)  # convert it into json format
         return JsonResponse(patients_serializer.data, safe=False)
     # POST: insert new records into department table
     elif request.method == 'POST':
         patient_data = JSONParser().parse(request)
-        patients_serializer = PatientsSerializer(data=patient_data)    # convert it into model
+        patients_serializer = PatientSerializer(data=patient_data)    # convert it into model
         # if the model is valid we save it into the database and return success message
         if patients_serializer.is_valid():
             patients_serializer.save()
@@ -29,15 +29,15 @@ def patientApi(request, id=0):
     # used to update a given record
     elif request.method == 'PUT':
         patient_data = JSONParser().parse(request)
-        patient = Patients.objects.get(PatientsId=patient_data['PatientId'])
+        patient = Patient.objects.get(PatientsId=patient_data['PatientId'])
         # capturing the existing record using department id
-        patients_serializer = PatientsSerializer(patient, data=patient_data)
+        patients_serializer = PatientSerializer(patient, data=patient_data)
         if patients_serializer.is_valid():
             patients_serializer.save()
             return JsonResponse("Updated Successfully", safe=False)
         return JsonResponse("Failed to Update")
     elif request.method == 'DELETE':
-        patient = Patients.objects.get(PatientsId=id)
+        patient = Patient.objects.get(PatientsId=id)
         patient.delete()
         return JsonResponse("Deleted Successfully", safe=False)
 
@@ -46,7 +46,7 @@ def patientApi(request, id=0):
 def departmentApi(request, id=0):
     # return all the records in json format
     if request.method == 'GET':
-        departments = Departments.objects.all()
+        departments = Department.objects.all()
         departments_serializer = DepartmentSerializer(departments, many=True)  # convert it into jison format
         return JsonResponse(departments_serializer.data, safe=False)
     # POST: insert new records into department table
@@ -61,7 +61,7 @@ def departmentApi(request, id=0):
     # used to update a given record
     elif request.method == 'PUT':
         department_data = JSONParser().parse(request)
-        department = Departments.objects.get(DepartmentId=department_data['DepartmentId'])
+        department = Department.objects.get(DepartmentId=department_data['DepartmentId'])
         # capturing the existing record using department id
         departments_serializer = DepartmentSerializer(department, data=department_data)
         if departments_serializer.is_valid():
@@ -69,7 +69,7 @@ def departmentApi(request, id=0):
             return JsonResponse("Updated Successfully", safe=False)
         return JsonResponse("Failed to Update")
     elif request.method == 'DELETE':
-        department = Departments.objects.get(DepartmentId=id)
+        department = Department.objects.get(DepartmentId=id)
         department.delete()
         return JsonResponse("Deleted Successfully", safe=False)
 
@@ -77,7 +77,7 @@ def departmentApi(request, id=0):
 @csrf_exempt
 def employeeApi(request, id=0):
     if request.method == 'GET':
-        employees = Employees.objects.all()
+        employees = Employee.objects.all()
         employees_serializer = EmployeeSerializer(employees, many=True)
         return JsonResponse(employees_serializer.data, safe=False)
     elif request.method == 'POST':
@@ -89,14 +89,14 @@ def employeeApi(request, id=0):
         return JsonResponse("Failed to Add", safe=False)
     elif request.method == 'PUT':
         employee_data = JSONParser().parse(request)
-        employee = Employees.objects.get(EmployeeId=employee_data['EmployeeId'])
+        employee = Employee.objects.get(EmployeeId=employee_data['EmployeeId'])
         employees_serializer = EmployeeSerializer(employee, data=employee_data)
         if employees_serializer.is_valid():
             employees_serializer.save()
             return JsonResponse("Updated Successfully", safe=False)
         return JsonResponse("Failed to Update")
     elif request.method == 'DELETE':
-        employee = Employees.objects.get(EmployeeId=id)
+        employee = Employee.objects.get(EmployeeId=id)
         employee.delete()
         return JsonResponse("Deleted Successfully", safe=False)
 
