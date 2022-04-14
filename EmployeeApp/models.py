@@ -23,7 +23,7 @@ class Information(models.Model):
     passport = models.CharField(max_length=7)
     nationality = models.CharField(max_length=30)
     date_of_Birth = models.DateField()
-    gender = models.EnumField(Gender)
+    gender = models.CharField(choices=Gender)
     address = models.ForeignKey(Address, on_delete=models.CASCADE)
     # user_image = models.ImageField(upload_to=images/patient/)
 
@@ -50,14 +50,14 @@ class AppointmentState(Enum):
     WAITING = 'waiting'
 
 
-class Appointment:
+class Appointment(models.Model):
     appointmentId = models.AutoField(primary_key=True)
     appointmentDate = models.DateField()
     doctor = models.ForeignKey(Employee, on_delete=models.CASCADE)
-    appointmentState = models.EnumField(AppointmentState)
+    appointmentState = models.CharField(choices=AppointmentState)
 
 
-class Analysis:
+class Analysis(models.Model):
     AnalysisId = models.AutoField(primary_key=True)
     analyst = models.ForeignKey(Employee, on_delete=models.CASCADE)
     Analysis_image = models.ImageField()
@@ -65,7 +65,7 @@ class Analysis:
     doctorNotes = models.CharField()
 
 
-class Radio:
+class Radio(models.Model):
     RadioId = models.AutoField(primary_key=True)
     radiologist = models.ForeignKey(Employee, on_delete=models.CASCADE)
     radio_image = models.ImageField()
@@ -73,7 +73,7 @@ class Radio:
     doctorNotes = models.CharField()
 
 
-class Consultation:
+class Consultation(models.Model):
     consultationId = models.AutoField(primary_key=True)
     appointment = models.ForeignKey(Appointment, on_delete=models.CASCADE)
     analysisList = models.ListField(Analysis)
