@@ -1,14 +1,11 @@
 from enum import Enum
 from django.db import models
 from rest_framework.fields import ListField
-from django import forms
 
 
 class Gender(Enum):
     MALE = 'male'
     FEMALE = 'female'
-
-
 class Address(models.Model):
     country = models.CharField(max_length=200)
     city = models.CharField(max_length=200)
@@ -20,12 +17,13 @@ class Information(models.Model):
     firstName = models.CharField(max_length=30)
     lastName = models.CharField(max_length=30)
     email = models.EmailField(max_length=254)
+    password = models.CharField(max_length=254)
     phone = models.CharField(max_length=50)
     cin = models.CharField(max_length=8)
     passport = models.CharField(max_length=7)
     nationality = models.CharField(max_length=30)
     date_of_Birth = models.DateField()
-    gender = models.CharField(choices=Gender)
+    gender = models.EnumField(Gender)
     address = models.ForeignKey(Address, on_delete=models.CASCADE)
     # user_image = models.ImageField(upload_to=images/patient/)
 
@@ -33,7 +31,7 @@ class Information(models.Model):
 class Department(models.Model):
     departmentId = models.AutoField(primary_key=True)
     departmentName = models.CharField(max_length=500)
-    # staffList = ListField(Employee) !!!!!!!
+    #staffList = ListField(Employee) !!!!!!!
 
 
 class Employee(models.Model):
@@ -43,7 +41,7 @@ class Employee(models.Model):
     speciality = models.CharField(max_length=50)
     department = models.ForeignKey(Department, on_delete=models.CASCADE)
     dateOfJoining = models.DateField()
-    # PatientsList = ListField(Patient) !!!!!!
+    #PatientsList = ListField(Patient) !!!!!!
 
 
 class AppointmentState(Enum):
@@ -56,7 +54,7 @@ class Appointment:
     appointmentId = models.AutoField(primary_key=True)
     appointmentDate = models.DateField()
     doctor = models.ForeignKey(Employee, on_delete=models.CASCADE)
-    appointmentState = models.CharField(choices=AppointmentState)
+    appointmentState = models.EnumField(AppointmentState)
 
 
 class Analysis:
@@ -97,6 +95,6 @@ class Patient(models.Model):
     appointments = ListField(Appointment)
     medical_staff_Patient = ListField(Employee)
 
-# class GenderPatient(models.TextChoices):
-# MALE = 'M', _('male')
-# FEMALE = 'F', _('female')
+#class GenderPatient(models.TextChoices):
+    #MALE = 'M', _('male')
+    #FEMALE = 'F', _('female')
