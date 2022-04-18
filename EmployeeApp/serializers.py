@@ -62,13 +62,9 @@ class PatientSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         info_patient = validated_data.pop('info_patient')
-        instance.occupation = validated_data.get('occupation', instance.occupation)
-        instance.chronic_disease = validated_data.get('chronic_disease', instance.chronic_disease)
-        instance.allergy = validated_data.get('allergy', instance.allergy)
-        instance.save()
-        info_patient.firstName = info_patient.get('firstName', info_patient.firstName)
-        info_patient.lastName = info_patient.get('lastName', info_patient.lastName)
-        info_patient.save()
+        info_serializer = InformationSerializer()
+        super(self.__class__, self).update(instance, validated_data)
+        super(InformationSerializer, info_serializer).update(instance.info_patient, info_patient)
         return instance
 
 

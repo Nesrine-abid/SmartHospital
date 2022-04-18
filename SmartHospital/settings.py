@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 from pathlib import Path
 import os
 
+from django import middleware
+
 BASE_DIR=Path(__file__).resolve(strict=True).parent.parent
 MEDIA_URL='/images/'
 MEDIA_ROOT=os.path.join(BASE_DIR,"images")
