@@ -12,7 +12,7 @@ class Address(models.Model):
 
 class Information(models.Model):
     GENDER = (('male', 'male'),
-            ('female', 'female'))
+              ('female', 'female'))
     firstName = models.CharField(max_length=30)
     lastName = models.CharField(max_length=30)
     email = models.EmailField(max_length=254)
@@ -22,7 +22,7 @@ class Information(models.Model):
     passport = models.CharField(max_length=7)
     nationality = models.CharField(max_length=30)
     date_of_Birth = models.DateField()
-    gender = models.CharField(max_length=30,choices=GENDER)
+    gender = models.CharField(max_length=30, choices=GENDER)
     address = models.OneToOneField(Address, on_delete=models.CASCADE)
     # user_image = models.ImageField()
 
@@ -30,6 +30,8 @@ class Information(models.Model):
 class Department(models.Model):
     departmentId = models.AutoField(primary_key=True)
     departmentName = models.CharField(max_length=500)
+
+
 #     #staffList = ListField(Employee)
 
 
@@ -38,26 +40,23 @@ class Patient(models.Model):
     occupation = models.CharField(max_length=100)
     chronic_disease = models.CharField(max_length=100)
     allergy = models.CharField(max_length=100)
-    info_patient = models.OneToOneField(Information,on_delete=models.CASCADE)
-#
-#     # class Meta:
-#     #     proxy = True
-#     # consultations = ManyToManyField(Consultation)
-#     # appointments = ManyToManyField(Appointment)
-#
-# class Employee(models.Model):
-#     employeeId = models.AutoField(primary_key=True)
-#     # infoEmployee = models.ForeignKey(Information, on_delete=models.CASCADE)
-#     Role = models.CharField(max_length=50)
-#     speciality = models.CharField(max_length=50)
-#     department = models.ForeignKey(Department, on_delete=models.CASCADE)
-#     dateOfJoining = models.DateField()
-#     patients = ManyToManyField(Patient)
-#     #
-#     # class Meta:
-#     #     proxy = True
-#
-#
+    info_patient = models.OneToOneField(Information, on_delete=models.CASCADE)
+
+
+class Employee(models.Model):
+    ROLE = (('doctor', 'doctor'),
+              ('analysist', 'analysist'),
+              ('biologist', 'biologist'),
+              ('pharmacist', 'pharmacist'),
+              ('secretary', 'secretary'))
+    employeeId = models.AutoField(primary_key=True)
+    role = models.CharField(max_length=30, choices=ROLE)
+    speciality = models.CharField(max_length=50)
+    dateOfJoining = models.DateField()
+    info_Employee = models.OneToOneField(Information, on_delete=models.CASCADE)
+    department = models.OneToOneField(Department, on_delete=models.CASCADE)
+    #patients = models.ManyToManyField(Patient)
+
 # class Appointment(models.Model):
 #     APPOINTMENT_STATE = (('available','available'),
 #                         ('unavailable','unavailable'))
@@ -103,14 +102,3 @@ class Patient(models.Model):
 #     radio_consultation = models.ForeignKey(Consultation, on_delete=models.CASCADE)
 #     radiologistNotes = models.CharField(max_length=100)
 #     doctorNotes = models.CharField(max_length=100)
-
-
-
-
-
-
-
-
-
-
-
