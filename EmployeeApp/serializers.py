@@ -1,62 +1,55 @@
-# from rest_framework import serializers
-# from EmployeeApp.models import  Employee, Patient, Department
-# from django import forms
-# from EmployeeApp.models import *
-#
-# # help to convert the complex type or model instences into native python data types
-# # that can be easily rendered into json or xml or other content types.
-# # they also help in deserialization which is nothing but converting the past data back to complex types.
-#
-#
-from django.forms import forms
-
-
-# class InfoForm(forms.ModelForm) :
-#     password = forms.CharField(widget=forms.PasswordInput)
-#     class Meta :
-#         model = Information
-#         fields = ('firstName','lastName','email','password','phone',
-#                   'cin','passport','nationality','date_of_Birth',
-#                   'gender')
-
-
 from rest_framework import serializers
 
-from EmployeeApp.models import Patient, Department, Information
+from EmployeeApp.models import *
 
 
-# class AddressSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Address
-#         fields = ('addressId','country', 'city','street','postalCode')
+class AddressSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Address
+        fields = ('country', 'city', 'street', 'postalCode')
 
-#
+
 class InformationSerializer(serializers.ModelSerializer):
+    address = AddressSerializer(required=True)
+
     class Meta:
         model = Information
-        fields = ('firstName','lastName')
+        fields = (
+        'firstName', 'lastName', 'email', 'password', 'phone', 'cin', 'passport', 'nationality', 'date_of_Birth',
+        'gender', 'address')
 
+    def create(self, validated_data):
+        address_data = validated_data.pop('address')
+        address = AddressSerializer.create(AddressSerializer(), validated_data=address_data)
+        info_patient, created = Patient.objects.update_or_create(address=address,
+                                                            firstName=validated_data.pop('firstName'),
+                                                            lastName=validated_data.pop('lastName'),
+                                                            email=validated_data.pop('email'),
+                                                            password=validated_data.pop('password'),
+                                                            phone=validated_data.pop('phone'),
+                                                            cin=validated_data.pop('cin'),
+                                                            date_of_Birth=validated_data.pop('date_of_Birth'),
+                                                            passport=validated_data.pop('passport'),
+                                                            nationality=validated_data.pop('nationality'),
+                                                            gender=validated_data.pop('gender')
+
+                                                            )
+        return info_patient
 
 class PatientSerializer(serializers.ModelSerializer):
     info_patient = InformationSerializer(required=True)
+
     class Meta:
         model = Patient
-        fields = ('patientId','occupation', 'chronic_disease', 'allergy','info_patient'
-                  )
+        fields = ('patientId', 'occupation', 'chronic_disease', 'allergy', 'info_patient')
 
     def create(self, validated_data):
-        """
-        Overriding the default create method of the Model serializer.
-        :param validated_data: data containing all the details of student
-        :return: returns a successfully created student record
-        """
         info_data = validated_data.pop('info_patient')
         info = InformationSerializer.create(InformationSerializer(), validated_data=info_data)
         patient, created = Patient.objects.update_or_create(info_patient=info,
-                                                                occupation=validated_data.pop('occupation'),
-                                                                chronic_disease=validated_data.pop('chronic_disease'),
-                                                                allergy=validated_data.pop('allergy')
-
+                                                            occupation=validated_data.pop('occupation'),
+                                                            chronic_disease=validated_data.pop('chronic_disease'),
+                                                            allergy=validated_data.pop('allergy')
                                                             )
         return patient
 
@@ -78,4 +71,4 @@ class DepartmentSerializer(serializers.ModelSerializer):
         model = Department
         fields = ('departmentId', 'departmentName')
 #
-#'EmployeeId', 'infoEmployee', 'Role', 'speciality', 'department', 'dateOfJoining')
+# 'EmployeeId', 'infoEmployee', 'Role', 'speciality', 'department', 'dateOfJoining')

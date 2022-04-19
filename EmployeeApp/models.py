@@ -11,20 +11,20 @@ class Address(models.Model):
 
 
 class Information(models.Model):
-    # GENDER = (('male', 'male'),
-    #         ('female', 'female'))
+    GENDER = (('male', 'male'),
+            ('female', 'female'))
     firstName = models.CharField(max_length=30)
     lastName = models.CharField(max_length=30)
-    # email = models.EmailField(max_length=254)
-    # password = models.CharField(max_length=254)
-    # phone = models.CharField(max_length=50)
-    # cin = models.CharField(max_length=8)
-    # passport = models.CharField(max_length=7)
-    # nationality = models.CharField(max_length=30)
-    # date_of_Birth = models.DateField()
-    # gender = models.CharField(max_length=30,choices=GENDER)
-    # address = models.ForeignKey(Address, on_delete=models.CASCADE)
-    # user_image = models.ImageField(upload_to=images/patient/)
+    email = models.EmailField(max_length=254)
+    password = models.CharField(max_length=254)
+    phone = models.CharField(max_length=50)
+    cin = models.CharField(max_length=8)
+    passport = models.CharField(max_length=7)
+    nationality = models.CharField(max_length=30)
+    date_of_Birth = models.DateField()
+    gender = models.CharField(max_length=30,choices=GENDER)
+    address = models.OneToOneField(Address, on_delete=models.CASCADE)
+    # user_image = models.ImageField()
 
 
 class Department(models.Model):
