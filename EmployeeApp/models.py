@@ -55,7 +55,7 @@ class Employee(models.Model):
     dateOfJoining = models.DateField()
     info_Employee = models.OneToOneField(Information, on_delete=models.CASCADE)
     department = models.OneToOneField(Department, on_delete=models.CASCADE)
-    #patients = models.ManyToManyField(Patient)
+    patients = models.ManyToManyField(Patient)
 
 # class Appointment(models.Model):
 #     APPOINTMENT_STATE = (('available','available'),
