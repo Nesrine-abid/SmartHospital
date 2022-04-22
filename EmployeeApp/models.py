@@ -32,9 +32,6 @@ class Department(models.Model):
     departmentName = models.CharField(max_length=500)
 
 
-#     #staffList = ListField(Employee)
-
-
 class Patient(models.Model):
     patientId = models.AutoField(primary_key=True)
     occupation = models.CharField(max_length=100)
@@ -45,60 +42,53 @@ class Patient(models.Model):
 
 class Employee(models.Model):
     ROLE = (('doctor', 'doctor'),
-              ('analysist', 'analysist'),
-              ('biologist', 'biologist'),
-              ('pharmacist', 'pharmacist'),
-              ('secretary', 'secretary'))
+            ('analysist', 'analysist'),
+            ('biologist', 'biologist'),
+            ('pharmacist', 'pharmacist'),
+            ('secretary', 'secretary'))
     employeeId = models.AutoField(primary_key=True)
     role = models.CharField(max_length=30, choices=ROLE)
     speciality = models.CharField(max_length=50)
     dateOfJoining = models.DateField()
     info_Employee = models.OneToOneField(Information, on_delete=models.CASCADE)
     department = models.OneToOneField(Department, on_delete=models.CASCADE)
-    patients = models.ManyToManyField(Patient)
+    patients = models.ManyToManyField(Patient, blank=True)
 
-# class Appointment(models.Model):
-#     APPOINTMENT_STATE = (('available','available'),
-#                         ('unavailable','unavailable'))
-#
-#     appointmentId = models.AutoField(primary_key=True)
-#     appointmentDate = models.DateField()
-#     doctor = models.ForeignKey(Employee, on_delete=models.CASCADE)
-#     appointmentState = models.CharField(max_length=30, choices=APPOINTMENT_STATE)
-#
-#
-#
-#
-#
-#
-#
-# class Consultation(models.Model):
-#     consultationId = models.AutoField(primary_key=True)
-#     appointment = models.ForeignKey(Appointment, on_delete=models.CASCADE)
-#     patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
-#     prescriptionImage = models.ImageField()
-#     prescriptionText = models.CharField(max_length=100)
-#     doctorNotes = models.CharField(max_length=100)
-#     temperature = models.FloatField()
-#     bloodPressure = models.FloatField()
-#     # analysisList = models.ManyToManyField(Analysis)
-#     # radioList = models.ManyToManyField(Radio)
-#
-#
-# class Analysis(models.Model):
-#     AnalysisId = models.AutoField(primary_key=True)
-#     analyst = models.ForeignKey(Employee, on_delete=models.CASCADE)
-#     analysis_consultation = models.ForeignKey(Consultation, on_delete=models.CASCADE)
-#     Analysis_image = models.ImageField()
-#     AnalystNotes = models.CharField(max_length=100)
-#     doctorNotes = models.CharField(max_length=100)
-#
-#
-#
-# class Radio(models.Model):
-#     RadioId = models.AutoField(primary_key=True)
-#     radiologist = models.ForeignKey(Employee, on_delete=models.CASCADE)
-#     radio_image = models.ImageField()
-#     radio_consultation = models.ForeignKey(Consultation, on_delete=models.CASCADE)
-#     radiologistNotes = models.CharField(max_length=100)
-#     doctorNotes = models.CharField(max_length=100)
+
+class Appointment(models.Model):
+    APPOINTMENT_STATE = (('available', 'available'),
+                         ('unavailable', 'unavailable'))
+
+    appointmentId = models.AutoField(primary_key=True)
+    appointmentDate = models.DateField()
+    doctor = models.ForeignKey(Employee, on_delete=models.CASCADE)
+    appointmentState = models.CharField(max_length=30, choices=APPOINTMENT_STATE)
+
+
+class Consultation(models.Model):
+    consultationId = models.AutoField(primary_key=True)
+    appointment = models.OneToOneField(Appointment, on_delete=models.CASCADE)
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
+    prescriptionImage = models.ImageField()
+    prescriptionText = models.CharField(max_length=100)
+    doctorNotes = models.CharField(max_length=100)
+    temperature = models.FloatField()
+    bloodPressure = models.FloatField()
+
+
+class Analysis(models.Model):
+    AnalysisId = models.AutoField(primary_key=True)
+    analyst = models.OneToOneField(Employee, on_delete=models.CASCADE)
+    Analysis_image = models.ImageField()
+    AnalystNotes = models.CharField(max_length=100)
+    doctorNotes = models.CharField(max_length=100)
+    consultation = models.ForeignKey(Consultation, on_delete=models.CASCADE)
+
+
+class Radio(models.Model):
+    RadioId = models.AutoField(primary_key=True)
+    radiologist = models.OneToOneField(Employee, on_delete=models.CASCADE)
+    radio_image = models.ImageField()
+    radiologistNotes = models.CharField(max_length=100)
+    doctorNotes = models.CharField(max_length=100)
+    consultation = models.ForeignKey(Consultation, on_delete=models.CASCADE)
