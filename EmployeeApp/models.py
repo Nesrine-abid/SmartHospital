@@ -1,6 +1,6 @@
 from enum import Enum
+
 from django.db import models
-from django.db.models import ManyToManyField
 
 
 class Address(models.Model):
@@ -43,7 +43,7 @@ class Patient(models.Model):
 class Employee(models.Model):
     ROLE = (('doctor', 'doctor'),
             ('analysist', 'analysist'),
-            ('biologist', 'biologist'),
+            ('radiologist', 'radiologist'),
             ('pharmacist', 'pharmacist'),
             ('secretary', 'secretary'))
     employeeId = models.AutoField(primary_key=True)
@@ -51,29 +51,23 @@ class Employee(models.Model):
     speciality = models.CharField(max_length=50)
     dateOfJoining = models.DateField()
     info_Employee = models.OneToOneField(Information, on_delete=models.CASCADE)
-    department = models.OneToOneField(Department, on_delete=models.CASCADE)
-    patients = models.ManyToManyField(Patient, blank=True)
-
-
-class Appointment(models.Model):
-    APPOINTMENT_STATE = (('available', 'available'),
-                         ('unavailable', 'unavailable'))
-
-    appointmentId = models.AutoField(primary_key=True)
-    appointmentDate = models.DateField()
-    doctor = models.ForeignKey(Employee, on_delete=models.CASCADE)
-    appointmentState = models.CharField(max_length=30, choices=APPOINTMENT_STATE)
+    department = models.ForeignKey(Department, on_delete=models.CASCADE)
+    patients = models.ManyToManyField(Patient, null=True, blank=True, related_name='staff_medical')
 
 
 class Consultation(models.Model):
     consultationId = models.AutoField(primary_key=True)
-    appointment = models.OneToOneField(Appointment, on_delete=models.CASCADE)
-    patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
-    prescriptionImage = models.ImageField()
-    prescriptionText = models.CharField(max_length=100)
-    doctorNotes = models.CharField(max_length=100)
-    temperature = models.FloatField()
-    bloodPressure = models.FloatField()
+    APPOINTMENT_STATE = (('available', 'available'),
+                         ('unavailable', 'unavailable'))
+    appointmentDate = models.DateField()
+    doctor = models.ForeignKey(Employee, on_delete=models.CASCADE, related_name='consultations')
+    appointmentState = models.CharField(max_length=30, choices=APPOINTMENT_STATE)
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE, related_name='consultations')
+    prescriptionImage = models.ImageField(null=True, blank=True)
+    prescriptionText = models.CharField(max_length=100, null=True, blank=True)
+    doctorNotes = models.CharField(max_length=100, null=True, blank=True)
+    temperature = models.FloatField(null=True, blank=True)
+    bloodPressure = models.FloatField(null=True, blank=True)
 
 
 class Analysis(models.Model):

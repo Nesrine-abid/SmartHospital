@@ -32,7 +32,6 @@ class InformationSerializer(serializers.ModelSerializer):
                                                                      passport=validated_data.pop('passport'),
                                                                      nationality=validated_data.pop('nationality'),
                                                                      gender=validated_data.pop('gender')
-
                                                                      )
         return info_patient
 
@@ -49,7 +48,7 @@ class PatientSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Patient
-        fields = ('patientId', 'occupation', 'chronic_disease', 'allergy', 'info_patient')
+        fields = ('patientId', 'occupation', 'chronic_disease', 'allergy', 'info_patient', 'consultations','staff_medical')
 
     def create(self, validated_data):
         info_data = validated_data.pop('info_patient')
@@ -81,13 +80,14 @@ class EmployeeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Employee
-        fields = ('employeeId', 'info_Employee', 'role', 'speciality', 'dateOfJoining', 'department', 'patients')
+        fields = ('employeeId', 'info_Employee', 'role', 'speciality', 'dateOfJoining', 'department', 'patients','consultations')
 
     def create(self, validated_data):
+        # departments = Department.objects.all()
         info_data = validated_data.pop('info_Employee')
         department = validated_data.pop('department')
-        info = InformationSerializer.create(InformationSerializer(), validated_data=info_data)
         department = DepartmentSerializer.create(DepartmentSerializer(), validated_data=department)
+        info = InformationSerializer.create(InformationSerializer(), validated_data=info_data)
         employee, created = Employee.objects.update_or_create(info_Employee=info,
                                                               department=department,
                                                               role=validated_data.pop('role'),
@@ -105,3 +105,25 @@ class EmployeeSerializer(serializers.ModelSerializer):
         info_serializer.updateInfo(instance.info_Employee, info_Employee)
         department_serializer.update(instance.department, department)
         return instance
+
+
+class ConsultationSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Consultation
+        fields = (
+            'consultationId', 'appointmentDate', 'doctor','patient', 'appointmentState', 'prescriptionImage', 'prescriptionText',
+            'doctorNotes','temperature', 'bloodPressure')
+
+
+
+    # def update(self, instance, validated_data):
+    #     doctor = validated_data.pop('doctor')
+    #     patient = validated_data.pop('patient')
+    #     print(patient)
+    #     patient_serializer = PatientSerializer()
+    #     doctor_serializer = EmployeeSerializer()
+    #     super(self.__class__, self).update(instance, validated_data)
+    #     patient_serializer.update(instance.patientId, patient)
+    #     doctor_serializer.update(instance.employeeId, doctor)
+    #     return instance
