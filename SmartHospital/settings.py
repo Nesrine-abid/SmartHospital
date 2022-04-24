@@ -89,7 +89,7 @@ WSGI_APPLICATION = 'SmartHospital.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'djongo',
-        'NAME': 'SmartHospital',
+        'NAME': 'Smart_Hospital',
     }
 }
 
