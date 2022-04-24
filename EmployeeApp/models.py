@@ -24,7 +24,7 @@ class Information(models.Model):
     date_of_Birth = models.DateField()
     gender = models.CharField(max_length=30, choices=GENDER)
     address = models.OneToOneField(Address, on_delete=models.CASCADE)
-    # user_image = models.ImageField()
+    # user_image = models.ImageField(null=True,blank=True)
 
 
 class Department(models.Model):
@@ -51,7 +51,7 @@ class Employee(models.Model):
     speciality = models.CharField(max_length=50)
     dateOfJoining = models.DateField()
     info_Employee = models.OneToOneField(Information, on_delete=models.CASCADE)
-    department = models.ForeignKey(Department, on_delete=models.CASCADE)
+    department = models.ForeignKey(Department, on_delete=models.CASCADE,related_name="employees")
     patients = models.ManyToManyField(Patient, null=True, blank=True, related_name='staff_medical')
 
 

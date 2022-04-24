@@ -13,6 +13,7 @@ urlpatterns = [
 
                   re_path(r'^consultation$', views.consultationApi),
                   re_path(r'^consultation/([0-9]+)$', views.consultationApi),
+                  re_path(r'^consultation/savefile', views.SaveFile),
                   #
                   #     re_path(r'^employee$', views.employeeApi),
                   #     re_path(r'^employee/([0-9]+)$', views.employeeApi),
