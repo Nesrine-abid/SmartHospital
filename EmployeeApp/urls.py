@@ -5,8 +5,8 @@ from django.conf.urls.static import static
 from django.conf import settings
 
 urlpatterns = [
-                  re_path(r'^patient$', views.patientApi),
-                  re_path(r'^patient/([0-9]+)$', views.patientApi),
+                  # re_path(r'^patient$', views.patientApi),
+                  # re_path(r'^patient/([0-9]+)$', views.patientApi),
 
                   re_path(r'^employee$', views.employeeApi),
                   re_path(r'^employee/([0-9]+)$', views.employeeApi),

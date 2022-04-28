@@ -7,39 +7,39 @@ from rest_framework.decorators import api_view
 from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
 
-from EmployeeApp.models import Department, Patient, Employee, Consultation
-from EmployeeApp.serializers import DepartmentSerializer, PatientSerializer, EmployeeSerializer, ConsultationSerializer
+from EmployeeApp.models import Department, Employee, Consultation
+from EmployeeApp.serializers import DepartmentSerializer,  EmployeeSerializer, ConsultationSerializer
 from rest_framework import status
 
 
 @csrf_exempt
 
-def patientApi(request, id=0):
-    if request.method == 'GET':
-        patients = Patient.objects.all()
-        patients_serializer = PatientSerializer(patients, many=True)  # convert it into json format
-        return JsonResponse(patients_serializer.data, safe=False)
-    elif request.method == 'POST':
-        patient_data = JSONParser().parse(request)
-        patients_serializer = PatientSerializer(data=patient_data)  # convert it into model
-        if patients_serializer.is_valid():
-            patients_serializer.save()
-            return JsonResponse("Added Successfully", safe=False)
-        return JsonResponse("Failed to Add", safe=False)
-    elif request.method == 'PUT':
-        patient_data = JSONParser().parse(request)
-        patient = Patient.objects.get(patientId=patient_data['patientId'])
-        patients_serializer = PatientSerializer(patient, data=patient_data)
-        if patients_serializer.is_valid():
-            patients_serializer.save()
-            return JsonResponse("Updated Successfully", safe=False)
-        return JsonResponse("Failed to Update", patients_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    elif request.method == 'DELETE':
-        patient = Patient.objects.get(patientId=id)
-        patient.info_patient.address.delete()
-        patient.delete()
-        return JsonResponse("Deleted Successfully", safe=False)
+# def patientApi(request, id=0):
+#     if request.method == 'GET':
+#         patients = Patient.objects.all()
+#         patients_serializer = PatientSerializer(patients, many=True)  # convert it into json format
+#         return JsonResponse(patients_serializer.data, safe=False)
+#     elif request.method == 'POST':
+#         patient_data = JSONParser().parse(request)
+#         patients_serializer = PatientSerializer(data=patient_data)  # convert it into model
+#         if patients_serializer.is_valid():
+#             patients_serializer.save()
+#             return JsonResponse("Added Successfully", safe=False)
+#         return JsonResponse("Failed to Add", safe=False)
+#     elif request.method == 'PUT':
+#         patient_data = JSONParser().parse(request)
+#         patient = Patient.objects.get(patientId=patient_data['patientId'])
+#         patients_serializer = PatientSerializer(patient, data=patient_data)
+#         if patients_serializer.is_valid():
+#             patients_serializer.save()
+#             return JsonResponse("Updated Successfully", safe=False)
+#         return JsonResponse("Failed to Update", patients_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#
+#     elif request.method == 'DELETE':
+#         patient = Patient.objects.get(patientId=id)
+#         patient.info_patient.address.delete()
+#         patient.delete()
+#         return JsonResponse("Deleted Successfully", safe=False)
 
 
 @csrf_exempt
