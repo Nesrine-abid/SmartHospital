@@ -54,6 +54,8 @@ class Employee(models.Model):
     department = models.ForeignKey(Department, on_delete=models.CASCADE)
     patients = models.ManyToManyField(Patient, null=True, blank=True, related_name='staff_medical')
 
+    REQUIRED_FIELDS = []
+
 
 class Consultation(models.Model):
     consultationId = models.AutoField(primary_key=True)
@@ -63,7 +65,7 @@ class Consultation(models.Model):
     doctor = models.ForeignKey(Employee, on_delete=models.CASCADE, related_name='consultations')
     appointmentState = models.CharField(max_length=30, choices=APPOINTMENT_STATE)
     patient = models.ForeignKey(Patient, on_delete=models.CASCADE, related_name='consultations')
-    prescriptionImage = models.ImageField(upload_to='uploads/% Y/% m/% d/',null=True, blank=True)
+    prescriptionImage = models.ImageField(upload_to='auth/uploads/consultation_image',null=True,blank=True)
     prescriptionText = models.CharField(max_length=100, null=True, blank=True)
     doctorNotes = models.CharField(max_length=100, null=True, blank=True)
     temperature = models.FloatField(null=True, blank=True)

@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from rest_framework.parsers import FileUploadParser
 
 from EmployeeApp.models import *
 
@@ -108,6 +109,7 @@ class EmployeeSerializer(serializers.ModelSerializer):
 
 
 class ConsultationSerializer(serializers.ModelSerializer):
+    parser_classes = [FileUploadParser]
 
     class Meta:
         model = Consultation
