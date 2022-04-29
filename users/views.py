@@ -1,14 +1,17 @@
 from django.contrib.auth import authenticate, login, logout
-from rest_framework import status
+from django.http import Http404
+from rest_framework import status, generics
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
+from .models import User
+from django.views.generic.list import ListView
 
-from .serializers import RegistrationSerializer, PasswordChangeSerializer
+from .serializers import RegistrationSerializer, PasswordChangeSerializer, PatientSerializer
 
 
-# Create your views here.
 def get_tokens_for_user(user):
     refresh = RefreshToken.for_user(user)
 
@@ -18,6 +21,7 @@ def get_tokens_for_user(user):
     }
 
 
+# post a patient
 class RegistrationView(APIView):
     def post(self, request):
         serializer = RegistrationSerializer(data=request.data)
@@ -56,3 +60,51 @@ class ChangePasswordView(APIView):
         request.user.set_password(serializer.validated_data['new_password'])
         request.user.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+# get list of all patients
+class PatientListView(generics.ListCreateAPIView):
+    permission_classes = [IsAuthenticated, ]
+    queryset = User.objects.all()
+    serializer_class = PatientSerializer
+
+
+# get patient by id (patient/id) , delete patient by id and update patient by id (email dosent update)
+class PatientRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsAuthenticated, ]
+    queryset = User.objects.all()
+    serializer_class = PatientSerializer
+
+
+# class PatientUpdateView(APIView):
+#     def get_object(self, pk):
+#         try:
+#             return User.objects.get(pk=pk)
+#         except User.DoesNotExist:
+#             raise Http404
+#
+#     def put(self, request, pk, format=None):
+#         patient = self.get_object(pk)
+#         serializer = PatientSerializer(patient, data=request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+# put method not allowed
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def api_update_patient_view(request, id):
+    try:
+        patient = User.objects.get(pk=id)
+    except User.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    if request.method == 'PUT':
+        patient_serializer = PatientSerializer(patient, data=request.data)
+        data = {}
+        if patient_serializer.is_valid():
+            patient_serializer.save()
+            data["success"] = "updated successfully"
+            return Response(data=data)
+        return Response(patient_serializer.errors, status=status.HTTP_400_BAD_REQUEST)

@@ -7,13 +7,22 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['email', 'cin', 'password', 'password2']
+        fields = ['email', 'cin', 'password', 'password2', 'occupation', 'chronic_disease', 'allergy', 'firstName',
+                  'lastName', 'phone', 'passport', 'nationality', 'date_of_Birth',
+                  'gender', 'country', 'city', 'street', 'postalCode','user_image']
         extra_kwargs = {
             'password': {'write_only': True}
         }
 
     def save(self):
-        user = User(email=self.validated_data['email'], cin=self.validated_data['cin'])
+        user = User(email=self.validated_data['email'], cin=self.validated_data['cin'],
+                     chronic_disease=self.validated_data['chronic_disease']
+                    , allergy=self.validated_data['allergy'], firstName=self.validated_data['firstName']
+                    , lastName=self.validated_data['lastName'], phone=self.validated_data['phone'],
+                    passport=self.validated_data['passport'], nationality=self.validated_data['nationality'],
+                    date_of_Birth=self.validated_data['date_of_Birth'], gender=self.validated_data['gender'],
+                    country=self.validated_data['country'], city=self.validated_data['city']
+                    , street=self.validated_data['street'], postalCode=self.validated_data['postalCode'], user_image=self.validated_data['user_image'])
         password = self.validated_data['password']
         password2 = self.validated_data['password2']
         if password != password2:
@@ -40,60 +49,33 @@ class AddressSerializer(serializers.ModelSerializer):
 
 
 class InformationSerializer(serializers.ModelSerializer):
-    address = AddressSerializer(required=True)
+    address_ptr = AddressSerializer(required=True)
 
     class Meta:
         model = Information
         fields = (
             'firstName', 'lastName', 'email', 'password', 'phone', 'cin', 'passport', 'nationality', 'date_of_Birth',
-            'gender', 'address')
-
-    def create(self, validated_data):
-        address_data = validated_data.pop('address')
-        address = AddressSerializer.create(AddressSerializer(), validated_data=address_data)
-        info_patient, created = Information.objects.update_or_create(address=address,
-                                                                     firstName=validated_data.pop('firstName'),
-                                                                     lastName=validated_data.pop('lastName'),
-                                                                     email=validated_data.pop('email'),
-                                                                     password=validated_data.pop('password'),
-                                                                     phone=validated_data.pop('phone'),
-                                                                     cin=validated_data.pop('cin'),
-                                                                     date_of_Birth=validated_data.pop('date_of_Birth'),
-                                                                     passport=validated_data.pop('passport'),
-                                                                     nationality=validated_data.pop('nationality'),
-                                                                     gender=validated_data.pop('gender')
-                                                                     )
-        return info_patient
+            'gender', 'address_ptr', 'user_image')
 
     def updateInfo(self, instance, validated_data):
-        address = validated_data.pop('address')
+        address_ptr = validated_data.pop('address_ptr')
         address_serializer = AddressSerializer()
         super(self.__class__, self).update(instance, validated_data)
-        super(AddressSerializer, address_serializer).update(instance.address, address)
-        return instance
+        super(AddressSerializer, address_serializer).update(instance.address_ptr, address_ptr)
+        return
 
 
 class PatientSerializer(serializers.ModelSerializer):
-    info_patient = InformationSerializer(required=True)
+    information_ptr = InformationSerializer(required=False)
 
     class Meta:
         model = User
-        fields = (
-        'patientId', 'occupation', 'chronic_disease', 'allergy', 'info_patient', 'consultations', 'staff_medical')
-
-    def create(self, validated_data):
-        info_data = validated_data.pop('info_patient')
-        info = InformationSerializer.create(InformationSerializer(), validated_data=info_data)
-        patient, created = User.objects.update_or_create(info_patient=info,
-                                                         occupation=validated_data.pop('occupation'),
-                                                         chronic_disease=validated_data.pop('chronic_disease'),
-                                                         allergy=validated_data.pop('allergy')
-                                                         )
-        return patient
+        fields = ('patientId', 'information_ptr',
+                  'occupation', 'chronic_disease', 'allergy', 'consultations', 'staff_medical')
 
     def update(self, instance, validated_data):
-        info_patient = validated_data.pop('info_patient')
+        information_ptr = validated_data.pop('information_ptr')
         info_serializer = InformationSerializer()
         super(self.__class__, self).update(instance, validated_data)
-        info_serializer.updateInfo(instance.info_patient, info_patient)
+        info_serializer.updateInfo(instance.information_ptr, information_ptr)
         return instance

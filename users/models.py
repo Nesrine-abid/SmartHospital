@@ -13,7 +13,7 @@ class Address(models.Model):
     postalCode = models.CharField(max_length=200)
 
 
-class Information(models.Model):
+class Information(Address,models.Model):
     GENDER = (('male', 'male'),
               ('female', 'female'))
     firstName = models.CharField(max_length=30)
@@ -22,33 +22,32 @@ class Information(models.Model):
     password = models.CharField(max_length=254)
     phone = models.CharField(max_length=50)
     cin = models.CharField(max_length=8)
-    passport = models.CharField(max_length=7)
+    passport = models.CharField(max_length=7, blank=True)
     nationality = models.CharField(max_length=30)
     date_of_Birth = models.DateField()
     gender = models.CharField(max_length=30, choices=GENDER)
-    address = models.OneToOneField(Address, on_delete=models.CASCADE)
-    # user_image = models.ImageField(null=True,blank=True)
+    user_image = models.ImageField(null=True,blank=True,upload_to="images/")
 
 
 class MyUserManager(BaseUserManager):
-    def create_user(self, email, cin, password=None):
+    def create_user(self, email,  password=None,**otherfields):
         if not email:
             raise ValueError('Users must have an email address')
 
         user = self.model(
             email=self.normalize_email(email),
-            cin= cin
+            **otherfields
         )
 
         user.set_password(password)
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, email,cin, password=None):
+    def create_superuser(self, email, password=None,**otherfields):
         user = self.create_user(
             email,
             password=password,
-            cin= cin
+            **otherfields
         )
         user.is_admin = True
         user.is_staff = True
@@ -57,6 +56,7 @@ class MyUserManager(BaseUserManager):
 
 
 class User(Information,AbstractBaseUser):
+    patientId = models.AutoField(primary_key=True)
     occupation = models.CharField(max_length=100)
     chronic_disease = models.CharField(max_length=100)
     allergy = models.CharField(max_length=100)
@@ -66,7 +66,7 @@ class User(Information,AbstractBaseUser):
     objects = MyUserManager()
     username = None
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['cin']
+    REQUIRED_FIELDS = []
 
     def has_perm(self, perm, obj=None):
         return self.is_admin
