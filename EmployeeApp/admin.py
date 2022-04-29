@@ -9,6 +9,5 @@ admin.site.register(Information)
 admin.site.register(Address)
 admin.site.register(Department)
 admin.site.register(Consultation)
-
 admin.site.register(Analysis)
 admin.site.register(Radio)

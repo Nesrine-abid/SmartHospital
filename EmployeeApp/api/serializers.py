@@ -4,6 +4,41 @@ from rest_framework.parsers import FileUploadParser
 from EmployeeApp.models import *
 
 
+from rest_framework import serializers
+
+
+
+class RegistrationSerializer(serializers.ModelSerializer):
+    password2 = serializers.CharField(style={"input_type": "password"}, write_only=True)
+
+    class Meta:
+        model = Employee
+        fields = ['email', 'cin', 'password', 'password2','city','department','role']
+        extra_kwargs = {
+            'password': {'write_only': True}
+        }
+
+    def save(self):
+        user = Employee(email=self.validated_data['email'], cin=self.validated_data['cin'],
+        city = self.validated_data['city'],department=self.validated_data['department'],role=self.validated_data['role']     )
+        password = self.validated_data['password']
+        password2 = self.validated_data['password2']
+        if password != password2:
+            raise serializers.ValidationError({'password': 'Passwords must match.'})
+        user.set_password(password)
+        user.save()
+        return user
+
+
+class PasswordChangeSerializer(serializers.Serializer):
+    current_password = serializers.CharField(style={"input_type": "password"}, required=True)
+    new_password = serializers.CharField(style={"input_type": "password"}, required=True)
+
+    def validate_current_password(self, value):
+        if not self.context['request'].user.check_password(value):
+            raise serializers.ValidationError({'current_password': 'Does not match'})
+        return value
+
 class AddressSerializer(serializers.ModelSerializer):
     class Meta:
         model = Address
@@ -76,36 +111,36 @@ class DepartmentSerializer(serializers.ModelSerializer):
 
 
 class EmployeeSerializer(serializers.ModelSerializer):
-    info_Employee = InformationSerializer(required=True)
+    #info_Employee = InformationSerializer(required=True)
     department = DepartmentSerializer(required=True)
 
     class Meta:
         model = Employee
-        fields = ('employeeId', 'info_Employee', 'role', 'speciality', 'dateOfJoining', 'department', 'patients','consultations')
+        fields = ('employeeId', 'role', 'speciality', 'dateOfJoining', 'department', 'patients','consultations')
 
-    def create(self, validated_data):
-        # departments = Department.objects.all()
-        info_data = validated_data.pop('info_Employee')
-        department = validated_data.pop('department')
-        department = DepartmentSerializer.create(DepartmentSerializer(), validated_data=department)
-        info = InformationSerializer.create(InformationSerializer(), validated_data=info_data)
-        employee, created = Employee.objects.update_or_create(info_Employee=info,
-                                                              department=department,
-                                                              role=validated_data.pop('role'),
-                                                              speciality=validated_data.pop('speciality'),
-                                                              dateOfJoining=validated_data.pop('dateOfJoining')
-                                                              )
-        return employee
+    # def create(self, validated_data):
+    #     # departments = Department.objects.all()
+    #     info_data = validated_data.pop('info_Employee')
+    #     department = validated_data.pop('department')
+    #     department = DepartmentSerializer.create(DepartmentSerializer(), validated_data=department)
+    #     info = InformationSerializer.create(InformationSerializer(), validated_data=info_data)
+    #     employee, created = Employee.objects.update_or_create(info_Employee=info,
+    #                                                           department=department,
+    #                                                           role=validated_data.pop('role'),
+    #                                                           speciality=validated_data.pop('speciality'),
+    #                                                           dateOfJoining=validated_data.pop('dateOfJoining')
+    #                                                           )
+    #     return employee
 
-    def update(self, instance, validated_data):
-        info_Employee = validated_data.pop('info_Employee')
-        info_serializer = InformationSerializer()
-        department = validated_data.pop('department')
-        department_serializer = DepartmentSerializer()
-        super(self.__class__, self).update(instance, validated_data)
-        info_serializer.updateInfo(instance.info_Employee, info_Employee)
-        department_serializer.update(instance.department, department)
-        return instance
+    # def update(self, instance, validated_data):
+    #     info_Employee = validated_data.pop('info_Employee')
+    #     info_serializer = InformationSerializer()
+    #     department = validated_data.pop('department')
+    #     department_serializer = DepartmentSerializer()
+    #     super(self.__class__, self).update(instance, validated_data)
+    #     info_serializer.updateInfo(instance.info_Employee, info_Employee)
+    #     department_serializer.update(instance.department, department)
+    #     return instance
 
 
 class ConsultationSerializer(serializers.ModelSerializer):
