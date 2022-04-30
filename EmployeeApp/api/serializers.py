@@ -6,21 +6,33 @@ from EmployeeApp.models import *
 
 from rest_framework import serializers
 
-
+class FileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = File
+        fields = ('fileId','file')
 
 class RegistrationSerializer(serializers.ModelSerializer):
     password2 = serializers.CharField(style={"input_type": "password"}, write_only=True)
 
     class Meta:
         model = Employee
-        fields = ['email', 'cin', 'password', 'password2','city','department','role']
+        fields = ['email', 'cin', 'password', 'password2', 'role', 'speciality', 'dateOfJoining',
+                  'firstName','lastName', 'phone', 'passport', 'nationality', 'date_of_Birth',
+                  'gender', 'country', 'city', 'street', 'postalCode', 'file']
         extra_kwargs = {
             'password': {'write_only': True}
         }
 
     def save(self):
         user = Employee(email=self.validated_data['email'], cin=self.validated_data['cin'],
-        city = self.validated_data['city'],department=self.validated_data['department'],role=self.validated_data['role']     )
+                     role=self.validated_data['role']
+                    , speciality=self.validated_data['speciality'], dateOfJoining=self.validated_data['dateOfJoining'],
+                    firstName=self.validated_data['firstName'], lastName=self.validated_data['lastName'], phone=self.validated_data['phone'],
+                    passport=self.validated_data['passport'], nationality=self.validated_data['nationality'],
+                    date_of_Birth=self.validated_data['date_of_Birth'], gender=self.validated_data['gender'],
+                    country=self.validated_data['country'], city=self.validated_data['city']
+                    , street=self.validated_data['street'], postalCode=self.validated_data['postalCode'],file=self.validated_data['file']
+                        )
         password = self.validated_data['password']
         password2 = self.validated_data['password2']
         if password != password2:
@@ -45,37 +57,42 @@ class AddressSerializer(serializers.ModelSerializer):
         fields = ('country', 'city', 'street', 'postalCode')
 
 
-class InformationSerializer(serializers.ModelSerializer):
-    address = AddressSerializer(required=True)
+class InformationSerializerForUpdate(serializers.ModelSerializer):
+    address_ptr = AddressSerializer(required=True)
+    user_image = FileSerializer(required=True)
 
     class Meta:
         model = Information
         fields = (
-            'firstName', 'lastName', 'email', 'password', 'phone', 'cin', 'passport', 'nationality', 'date_of_Birth',
-            'gender', 'address')
-
-    def create(self, validated_data):
-        address_data = validated_data.pop('address')
-        address = AddressSerializer.create(AddressSerializer(), validated_data=address_data)
-        info_patient, created = Information.objects.update_or_create(address=address,
-                                                                     firstName=validated_data.pop('firstName'),
-                                                                     lastName=validated_data.pop('lastName'),
-                                                                     email=validated_data.pop('email'),
-                                                                     password=validated_data.pop('password'),
-                                                                     phone=validated_data.pop('phone'),
-                                                                     cin=validated_data.pop('cin'),
-                                                                     date_of_Birth=validated_data.pop('date_of_Birth'),
-                                                                     passport=validated_data.pop('passport'),
-                                                                     nationality=validated_data.pop('nationality'),
-                                                                     gender=validated_data.pop('gender')
-                                                                     )
-        return info_patient
+            'firstName', 'lastName', 'password', 'phone', 'cin', 'passport', 'nationality', 'date_of_Birth',
+            'gender', 'address_ptr','user_image')
 
     def updateInfo(self, instance, validated_data):
-        address = validated_data.pop('address')
+        address_ptr = validated_data.pop('address_ptr')
         address_serializer = AddressSerializer()
+        user_image = validated_data.pop('user_image')
+        file_serializer = FileSerializer()
         super(self.__class__, self).update(instance, validated_data)
-        super(AddressSerializer, address_serializer).update(instance.address, address)
+        super(AddressSerializer, address_serializer).update(instance.address_ptr, address_ptr)
+        super(FileSerializer, file_serializer).update(instance.user_image, user_image)
+        return instance
+class InformationSerializer(serializers.ModelSerializer):
+    address_ptr = AddressSerializer(required=True)
+    file_ptr = FileSerializer(required=True)
+    class Meta:
+        model = Information
+        fields = (
+            'firstName','email', 'lastName', 'password', 'phone', 'cin', 'passport', 'nationality', 'date_of_Birth',
+            'gender', 'address_ptr','file_ptr')
+
+    def updateInfo(self, instance, validated_data):
+        address_ptr = validated_data.pop('address_ptr')
+        address_serializer = AddressSerializer()
+        file_ptr = validated_data.pop('file_ptr')
+        file_serializer = FileSerializer()
+        super(self.__class__, self).update(instance, validated_data)
+        super(AddressSerializer, address_serializer).update(instance.address_ptr, address_ptr)
+        super(FileSerializer, file_serializer).update(instance.file_ptr, file_ptr)
         return instance
 
 
@@ -111,36 +128,22 @@ class DepartmentSerializer(serializers.ModelSerializer):
 
 
 class EmployeeSerializer(serializers.ModelSerializer):
-    #info_Employee = InformationSerializer(required=True)
+    information_ptr = InformationSerializer(required=False)
     department = DepartmentSerializer(required=True)
 
     class Meta:
         model = Employee
-        fields = ('employeeId', 'role', 'speciality', 'dateOfJoining', 'department', 'patients','consultations')
+        fields = ('employeeId','information_ptr','role', 'speciality', 'dateOfJoining', 'department', 'patients','consultations')
 
-    # def create(self, validated_data):
-    #     # departments = Department.objects.all()
-    #     info_data = validated_data.pop('info_Employee')
-    #     department = validated_data.pop('department')
-    #     department = DepartmentSerializer.create(DepartmentSerializer(), validated_data=department)
-    #     info = InformationSerializer.create(InformationSerializer(), validated_data=info_data)
-    #     employee, created = Employee.objects.update_or_create(info_Employee=info,
-    #                                                           department=department,
-    #                                                           role=validated_data.pop('role'),
-    #                                                           speciality=validated_data.pop('speciality'),
-    #                                                           dateOfJoining=validated_data.pop('dateOfJoining')
-    #                                                           )
-    #     return employee
-
-    # def update(self, instance, validated_data):
-    #     info_Employee = validated_data.pop('info_Employee')
-    #     info_serializer = InformationSerializer()
-    #     department = validated_data.pop('department')
-    #     department_serializer = DepartmentSerializer()
-    #     super(self.__class__, self).update(instance, validated_data)
-    #     info_serializer.updateInfo(instance.info_Employee, info_Employee)
-    #     department_serializer.update(instance.department, department)
-    #     return instance
+    def update(self, instance, validated_data):
+        information_ptr = validated_data.pop('information_ptr')
+        info_serializer = InformationSerializer()
+        department = validated_data.pop('department')
+        department_serializer = DepartmentSerializer()
+        super(self.__class__, self).update(instance, validated_data)
+        info_serializer.updateInfo(instance.information_ptr, information_ptr)
+        department_serializer.update(instance.department, department)
+        return instance
 
 
 class ConsultationSerializer(serializers.ModelSerializer):

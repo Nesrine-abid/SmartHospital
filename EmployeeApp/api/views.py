@@ -1,13 +1,17 @@
 from django.contrib.auth import authenticate, login, logout
 from rest_framework import status
+from rest_framework.decorators import permission_classes, api_view
+from rest_framework.parsers import FileUploadParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
-from .serializers import RegistrationSerializer, PasswordChangeSerializer
-
+from .serializers import RegistrationSerializer, PasswordChangeSerializer, FileSerializer
 
 # Create your views here.
+from ..models import Employee
+
+
 def get_tokens_for_user(user):
     refresh = RefreshToken.for_user(user)
 
@@ -15,7 +19,6 @@ def get_tokens_for_user(user):
         'refresh': str(refresh),
         'access': str(refresh.access_token),
     }
-
 
 class RegistrationView(APIView):
     def post(self, request):
@@ -55,3 +58,19 @@ class ChangePasswordView(APIView):
         request.user.set_password(serializer.validated_data['new_password'])
         request.user.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
+@api_view(['DELETE',])
+@permission_classes([IsAuthenticated])
+def api_delete_employee_view(request, id):
+    try:
+        employee = Employee.objects.get(pk=id)
+    except Employee.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    if request.method == 'DELETE':
+
+        operation = employee.delete()
+        data = {}
+        if operation:
+            data["success"] = "deleted successfully"
+        else:
+            data["failure"] = "delete failed"
+        return Response(data=data)

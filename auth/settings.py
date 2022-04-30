@@ -18,8 +18,7 @@ from django import middleware
 BASE_DIR=Path(__file__).resolve(strict=True).parent.parent
 MEDIA_URL = '/media/'
 
-# Path where media is stored
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -33,6 +32,7 @@ SECRET_KEY = 'django-insecure-c$ntjgx27$2#l-s@9&9lt+@n0!tk1dlr*a+p82x(w3-4^f1aj5
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+SILENCED_SYSTEM_CHECKS = ['models.E006']
 
 ALLOWED_HOSTS = []
 
@@ -51,6 +51,10 @@ INSTALLED_APPS = [
     'corsheaders',
     'EmployeeApp.apps.EmployeeappConfig'
 ]
+JWT_AUTH = {
+    'JWT_RESPONSE_PAYLOAD_HANDLER':
+    'myapp.utils.jwt_response_payload_handler',
+}
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
 

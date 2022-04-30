@@ -2,6 +2,12 @@ from enum import Enum
 
 from django.contrib.auth.base_user import BaseUserManager, AbstractBaseUser
 from django.db import models
+class File(models.Model):
+    fileId = models.AutoField(primary_key=True)
+    file = models.FileField(blank=False, null=False)
+    def __str__(self):
+        return self.file.name
+
 
 
 class Address(models.Model):
@@ -12,7 +18,7 @@ class Address(models.Model):
 
 
 
-class Information(Address):
+class Information(Address,File):
     GENDER = (('male', 'male'),
               ('female', 'female'))
     firstName = models.CharField(max_length=30)
@@ -40,30 +46,24 @@ class Patient(models.Model):
     info_patient = models.OneToOneField(Information, on_delete=models.CASCADE)
 
 class MyUserManager(BaseUserManager):
-        def create_user(self, email ,cin,city,role,department, password=None):
+        def create_user(self, email,password=None,**otherfields):
             if not email:
                 raise ValueError('Users must have an email address')
 
             user = self.model(
                 email=self.normalize_email(email),
-                cin=cin ,
-                city=city,
-                department = department,
-                role = role
+                **otherfields
             )
 
             user.set_password(password)
             user.save(using=self._db)
             return user
 
-        def create_superuser(self, email, cin,city,role,department, password=None):
+        def create_superuser(self, email,password=None,**otherfields):
             user = self.create_user(
                 email,
                 password=password,
-                cin=cin,
-                city=city,
-                department = department,
-                role = role
+                **otherfields
             )
             user.is_admin = True
             user.is_staff = True
@@ -80,7 +80,7 @@ class Employee(Information,AbstractBaseUser):
     role = models.CharField(max_length=30, choices=ROLE)
     speciality = models.CharField(max_length=50)
     dateOfJoining = models.DateField()
-    department = models.ForeignKey(Department, on_delete=models.CASCADE,blank=True)
+    department = models.ForeignKey(Department, on_delete=models.CASCADE,blank=True,null=True)
     patients = models.ManyToManyField(Patient, null=True, blank=True, related_name='staff_medical')
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
@@ -88,7 +88,7 @@ class Employee(Information,AbstractBaseUser):
     objects = MyUserManager()
     username = None
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['cin','city','department']
+    REQUIRED_FIELDS = ['cin']
 
     def has_perm(self, perm, obj=None):
         return self.is_admin

@@ -1,13 +1,15 @@
-from django.http import JsonResponse
-from rest_framework import status
+from django.core.files.storage import FileSystemStorage
+from rest_framework import status, generics
+from rest_framework.parsers import FileUploadParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.decorators import api_view ,permission_classes
+from rest_framework.views import APIView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
-from EmployeeApp.api.serializers import ConsultationSerializer, PatientSerializer, EmployeeSerializer
-from EmployeeApp.models import Consultation, Patient, Employee
-
+from EmployeeApp.api.serializers import ConsultationSerializer, PatientSerializer, EmployeeSerializer, \
+    InformationSerializer, FileSerializer, DepartmentSerializer
+from EmployeeApp.models import Consultation, Patient, Employee, Information
 
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -133,7 +135,7 @@ def api_update_consultation_view(request,id):
             return Response(data=data)
         return Response(consultation_serializer.errors,status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(['DELETE'])
+@api_view(['DELETE',])
 @permission_classes([IsAuthenticated])
 def api_delete_consultation_view(request,id):
     try :
@@ -142,7 +144,6 @@ def api_delete_consultation_view(request,id):
     except Consultation.DoesNotExist :
         return Response(status=status.HTTP_404_NOT_FOUND)
     if request.method == 'DELETE':
-
         operation = consultation.delete()
         data = {}
         if operation :
@@ -161,15 +162,22 @@ def api_create_consultation_view(request):
             return Response("Added Successfully", status=status.HTTP_201_CREATED)
         return Response("Failed to Add", status=status.HTTP_400_BAD_REQUEST)
 
-#############################employeeee"#####################################################
+# def upload(request):
+#     if request.method == 'POST' and request.FILES['upload']:
+#         upload = request.FILES['upload']
+#         fss = FileSystemStorage()
+#         user_image = fss.save(upload.name, upload)
+#         file_url = fss.url(user_image)
+#         return Response("uploaded Successfully", status=status.HTTP_201_CREATED)
+#     return Response("Failed to upload", status=status.HTTP_400_BAD_REQUEST)
+
 @api_view(['GET', ])
 @permission_classes([IsAuthenticated])
-def employeeApi(request, id=0):
+def employeeApi(request):
     if request.method == 'GET':
         employees = Employee.objects.all()
         employees_serializer = EmployeeSerializer(employees, many=True)  # convert it into json format
         return Response(employees_serializer.data)
-
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -181,23 +189,18 @@ def api_create_employee_view(request):
             return Response("Added Successfully", status=status.HTTP_201_CREATED)
         return Response("Failed to Add", status=status.HTTP_400_BAD_REQUEST)
 
+# @api_view(['POST'])
+# def api_create_department_view(request):
+#     if request.method == 'POST':
+#         department_serializer = DepartmentSerializer(data=request.data)
+#         if department_serializer.is_valid():
+#             department_serializer.save()
+#             return Response("Added Successfully", status=status.HTTP_201_CREATED)
+#         return Response("Failed to Add", status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(['DELETE'])
-@permission_classes([IsAuthenticated])
-def api_delete_employee_view(request, id):
-    try:
-        employee = Employee.objects.get(pk=id)
-    except Employee.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
-    if request.method == 'DELETE':
 
-        operation = employee.delete()
-        data = {}
-        if operation:
-            data["success"] = "deleted successfully"
-        else:
-            data["failure"] = "delete failed"
-        return Response(data=data)
+
+
 
 
 @api_view(['PUT'])
@@ -208,11 +211,26 @@ def api_update_employee_view(request, id):
     except Employee.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
     if request.method == 'PUT':
-        employee_serializer = EmployeeSerializer(employee, data=request.data)
+        employee_serializer = EmployeeSerializer(employee,data=request.data)
         data = {}
         if employee_serializer.is_valid():
             employee_serializer.save()
             data["success"] = "updated successfully"
             return Response(data=data)
-        return Response(employee_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+class FileUploadView(APIView):
+    parser_class = (FileUploadParser,)
+
+    def post(self, request, *args, **kwargs):
+
+      file_serializer = FileSerializer(data=request.data)
+
+      if file_serializer.is_valid():
+          file_serializer.save()
+          return Response(file_serializer.data, status=status.HTTP_201_CREATED)
+      else:
+          return Response(file_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 
