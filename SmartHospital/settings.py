@@ -14,6 +14,7 @@ from pathlib import Path
 import os
 
 from django import middleware
+from django.core.cache.backends.redis import RedisCache
 
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
 MEDIA_URL = '/media/'
@@ -31,7 +32,7 @@ SECRET_KEY = 'django-insecure-c$ntjgx27$2#l-s@9&9lt+@n0!tk1dlr*a+p82x(w3-4^f1aj5
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 
@@ -168,3 +169,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'users.User'
 
 CORS_ALLOW_CREDENTIALS = True
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_USE_TLS = True
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'smarthospital824@gmail.com'
+EMAIL_HOST_PASSWORD = 'SmartHospital2022'
+

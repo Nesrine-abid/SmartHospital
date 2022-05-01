@@ -10,10 +10,6 @@ class Department(models.Model):
     departmentName = models.CharField(max_length=500)
 
 
-
-
-
-
 class Employee(models.Model):
     ROLE = (('doctor', 'doctor'),
             ('analysist', 'analysist'),
@@ -25,7 +21,7 @@ class Employee(models.Model):
     speciality = models.CharField(max_length=50)
     dateOfJoining = models.DateField()
     info_Employee = models.OneToOneField(Information, on_delete=models.CASCADE)
-    department = models.ForeignKey(Department, on_delete=models.CASCADE,related_name="employees")
+    department = models.ForeignKey(Department, on_delete=models.CASCADE, related_name="employees")
     patients = models.ManyToManyField(User, blank=True, related_name='staff_medical')
 
 
@@ -37,7 +33,7 @@ class Consultation(models.Model):
     doctor = models.ForeignKey(Employee, on_delete=models.CASCADE, related_name='consultations')
     appointmentState = models.CharField(max_length=30, choices=APPOINTMENT_STATE)
     patient = models.ForeignKey(User, on_delete=models.CASCADE, related_name='consultations')
-    prescriptionImage = models.ImageField(upload_to='uploads/% Y/% m/% d/',null=True, blank=True)
+    prescriptionImage = models.ImageField(upload_to='uploads/% Y/% m/% d/', null=True, blank=True)
     prescriptionText = models.CharField(max_length=100, null=True, blank=True)
     doctorNotes = models.CharField(max_length=100, null=True, blank=True)
     temperature = models.FloatField(null=True, blank=True)

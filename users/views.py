@@ -7,9 +7,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from .models import User
-from django.views.generic.list import ListView
-
-from .serializers import RegistrationSerializer, PasswordChangeSerializer, PatientSerializer
+from .emailVerification import send_otp_via_email
+from .serializers import RegistrationSerializer, PasswordChangeSerializer, PatientSerializer, VerifyAccountSerializer
 
 
 def get_tokens_for_user(user):
@@ -27,8 +26,71 @@ class RegistrationView(APIView):
         serializer = RegistrationSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            print(serializer.data['email'])
+            send_otp_via_email(serializer.data['email'])
+            return Response({'msg': 'registred successfully',
+                             'data': serializer.data}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class VerifyOTP(APIView):
+    def post(self, request):
+        data = request.data
+        serializer = VerifyAccountSerializer(data=data)
+        if serializer.is_valid():
+            email = serializer.data['email']
+            otp = serializer.data['otp']
+            user = User.objects.filter(email=email)
+            if not user.exists():
+                return Response({
+                    'status': 400,
+                    'message': 'there is no patient with this email'
+                })
+            if user[0].otp != otp:
+                return Response({
+                    'message': 'wrong otp'
+                })
+            user = user.first()
+            user.is_verified = True
+            user.save()
+            return Response({
+                'status': 200,
+                'message': 'account verified'
+            })
+        return Response({
+            'status': 400,
+            'message': 'something went wrong',
+            'data': serializer.errors
+        })
+    def patch(self, request):
+        data = request.data
+        serializer = VerifyAccountSerializer(data=data)
+        if serializer.is_valid():
+            email = serializer.data['email']
+            otp = serializer.data['otp']
+            user = User.objects.filter(email=email)
+            if not user.exists():
+                return Response({
+                    'status': 400,
+                    'message': 'there is no patient with this email'
+                })
+            status , time = send_otp_via_email(email)
+            if status :
+                return Response({
+                    'status': 200,
+                    'message': 'new otp sent'
+                })
+
+            return Response({
+                'status': 400,
+                'message': f'try after few seconds {time}'
+            })
+        return Response({
+            'status': 400,
+            'message': 'something went wrong',
+            'data': serializer.errors
+        })
+
 
 
 class LoginView(APIView):

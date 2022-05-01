@@ -1,3 +1,5 @@
+from abc import ABC
+
 from rest_framework import serializers
 from .models import User, Information, Address
 
@@ -7,22 +9,21 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['email', 'cin', 'password', 'password2', 'occupation', 'chronic_disease', 'allergy', 'firstName',
+        fields = ['email', 'cin', 'password', 'password2', 'occupation', 'firstName',
                   'lastName', 'phone', 'passport', 'nationality', 'date_of_Birth',
-                  'gender', 'country', 'city', 'street', 'postalCode','user_image']
+                  'gender', 'country', 'city', 'street', 'postalCode']
         extra_kwargs = {
             'password': {'write_only': True}
         }
 
     def save(self):
         user = User(email=self.validated_data['email'], cin=self.validated_data['cin'],
-                     chronic_disease=self.validated_data['chronic_disease']
-                    , allergy=self.validated_data['allergy'], firstName=self.validated_data['firstName']
+                    firstName=self.validated_data['firstName']
                     , lastName=self.validated_data['lastName'], phone=self.validated_data['phone'],
                     passport=self.validated_data['passport'], nationality=self.validated_data['nationality'],
-                    date_of_Birth=self.validated_data['date_of_Birth'], gender=self.validated_data['gender'],
+                    gender=self.validated_data['gender'],
                     country=self.validated_data['country'], city=self.validated_data['city']
-                    , street=self.validated_data['street'], postalCode=self.validated_data['postalCode'], user_image=self.validated_data['user_image'])
+                    , street=self.validated_data['street'], postalCode=self.validated_data['postalCode'])
         password = self.validated_data['password']
         password2 = self.validated_data['password2']
         if password != password2:
@@ -30,6 +31,11 @@ class RegistrationSerializer(serializers.ModelSerializer):
         user.set_password(password)
         user.save()
         return user
+
+
+class VerifyAccountSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    otp = serializers.CharField()
 
 
 class PasswordChangeSerializer(serializers.Serializer):
