@@ -74,7 +74,7 @@ class VerifyOTP(APIView):
                     'status': 400,
                     'message': 'there is no patient with this email'
                 })
-            status , time = send_otp_via_email(email)
+            status= send_otp_via_email(email)
             if status :
                 return Response({
                     'status': 200,
@@ -83,7 +83,7 @@ class VerifyOTP(APIView):
 
             return Response({
                 'status': 400,
-                'message': f'try after few seconds {time}'
+                'message': 'try after few seconds later , resent is after one minute'
             })
         return Response({
             'status': 400,
