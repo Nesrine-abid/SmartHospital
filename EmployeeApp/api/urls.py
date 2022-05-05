@@ -17,7 +17,9 @@ urlpatterns = [
                 path('accounts/logout', LogoutView.as_view(), name='register'),
                 path('accounts/change-password', ChangePasswordView.as_view(), name='register'),
                 path('accounts/token-refresh/', jwt_views.TokenRefreshView.as_view(), name='token_refresh'),
-                re_path(r'^employee/([0-9]+)$', views.api_delete_employee_view),
+
+                # re_path(r'^department/([0-9]+)/$', views.api_delete_department_view),
+                # re_path(r'^employee/([0-9]+)$', views.api_update_employee_view),
 
 
 

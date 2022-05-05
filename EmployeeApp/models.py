@@ -70,6 +70,7 @@ class MyUserManager(BaseUserManager):
             user.save(using=self._db)
             return user
 
+
 class Employee(Information,AbstractBaseUser):
     ROLE = (('doctor', 'doctor'),
             ('analysist', 'analysist'),
@@ -80,7 +81,7 @@ class Employee(Information,AbstractBaseUser):
     role = models.CharField(max_length=30, choices=ROLE)
     speciality = models.CharField(max_length=50)
     dateOfJoining = models.DateField()
-    department = models.ForeignKey(Department, on_delete=models.CASCADE,blank=True,null=True)
+    department = models.ForeignKey(Department, on_delete=models.CASCADE,blank=True,null=True,related_name='department_staff')
     patients = models.ManyToManyField(Patient, null=True, blank=True, related_name='staff_medical')
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
@@ -113,7 +114,7 @@ class Consultation(models.Model):
 
 class Analysis(models.Model):
     AnalysisId = models.AutoField(primary_key=True)
-    analyst = models.OneToOneField(Employee, on_delete=models.CASCADE)
+    #analyst = models.OneToOneField(Employee, on_delete=models.CASCADE)
     Analysis_image = models.ImageField()
     AnalystNotes = models.CharField(max_length=100)
     doctorNotes = models.CharField(max_length=100)
@@ -122,7 +123,7 @@ class Analysis(models.Model):
 
 class Radio(models.Model):
     RadioId = models.AutoField(primary_key=True)
-    radiologist = models.OneToOneField(Employee, on_delete=models.CASCADE)
+    #radiologist = models.OneToOneField(Employee, on_delete=models.CASCADE)
     radio_image = models.ImageField()
     radiologistNotes = models.CharField(max_length=100)
     doctorNotes = models.CharField(max_length=100)

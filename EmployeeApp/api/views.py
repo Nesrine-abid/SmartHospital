@@ -6,10 +6,10 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
-from .serializers import RegistrationSerializer, PasswordChangeSerializer, FileSerializer
+from .serializers import RegistrationSerializer, PasswordChangeSerializer, FileSerializer, EmployeeSerializer
 
 # Create your views here.
-from ..models import Employee
+from ..models import Employee, Department
 
 
 def get_tokens_for_user(user):
@@ -58,19 +58,22 @@ class ChangePasswordView(APIView):
         request.user.set_password(serializer.validated_data['new_password'])
         request.user.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
-@api_view(['DELETE',])
-@permission_classes([IsAuthenticated])
-def api_delete_employee_view(request, id):
-    try:
-        employee = Employee.objects.get(pk=id)
-    except Employee.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
-    if request.method == 'DELETE':
 
-        operation = employee.delete()
-        data = {}
-        if operation:
-            data["success"] = "deleted successfully"
-        else:
-            data["failure"] = "delete failed"
-        return Response(data=data)
+
+
+
+# @api_view(['DELETE',])
+# @permission_classes([IsAuthenticated])
+# def api_delete_department_view(request,id):
+#     try :
+#         department = Department.objects.get(pk=id)
+#     except Department.DoesNotExist :
+#         return Response(status=status.HTTP_404_NOT_FOUND)
+#     if request.method == 'DELETE':
+#         operation = department.delete()
+#         data = {}
+#         if operation :
+#             data["success"]="deleted successfully"
+#         else:
+#             data["failure"]="delete failed"
+#         return Response(data=data)
