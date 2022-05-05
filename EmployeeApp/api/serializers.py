@@ -18,7 +18,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
         model = Employee
         fields = ['email', 'cin', 'password', 'password2', 'role', 'speciality','department',
                   'firstName','lastName', 'phone', 'passport', 'nationality', 'date_of_Birth',
-                  'gender', 'file']
+                  'gender']
         extra_kwargs = {
             'password': {'write_only': True}
         }
