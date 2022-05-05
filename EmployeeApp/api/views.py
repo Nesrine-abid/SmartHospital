@@ -1,16 +1,10 @@
 from django.contrib.auth import authenticate, login, logout
 from rest_framework import status
-from rest_framework.decorators import permission_classes, api_view
-from rest_framework.parsers import FileUploadParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from .serializers import RegistrationSerializer, PasswordChangeSerializer, FileSerializer, EmployeeSerializer
-
-# Create your views here.
-from ..models import Employee, Department
-
 
 def get_tokens_for_user(user):
     refresh = RefreshToken.for_user(user)

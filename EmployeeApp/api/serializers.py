@@ -16,9 +16,9 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Employee
-        fields = ['email', 'cin', 'password', 'password2', 'role', 'speciality', 'dateOfJoining','department',
+        fields = ['email', 'cin', 'password', 'password2', 'role', 'speciality','department',
                   'firstName','lastName', 'phone', 'passport', 'nationality', 'date_of_Birth',
-                  'gender', 'country', 'city', 'street', 'postalCode', 'file']
+                  'gender', 'file']
         extra_kwargs = {
             'password': {'write_only': True}
         }
@@ -26,12 +26,10 @@ class RegistrationSerializer(serializers.ModelSerializer):
     def save(self):
         user = Employee(email=self.validated_data['email'], cin=self.validated_data['cin'],
                      role=self.validated_data['role']
-                    ,speciality=self.validated_data['speciality'], dateOfJoining=self.validated_data['dateOfJoining'],
+                    ,speciality=self.validated_data['speciality'],
                     firstName=self.validated_data['firstName'], lastName=self.validated_data['lastName'], phone=self.validated_data['phone'],
                     passport=self.validated_data['passport'], nationality=self.validated_data['nationality'],department=self.validated_data['department'],
-                    date_of_Birth=self.validated_data['date_of_Birth'], gender=self.validated_data['gender'],
-                    country=self.validated_data['country'], city=self.validated_data['city']
-                    , street=self.validated_data['street'], postalCode=self.validated_data['postalCode'],file=self.validated_data['file'])
+                    date_of_Birth=self.validated_data['date_of_Birth'], gender=self.validated_data['gender'])
 
         # self.fileString = str(file.read())
         password = self.validated_data['password']
@@ -125,7 +123,7 @@ class PatientSerializer(serializers.ModelSerializer):
 class DepartmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Department
-        fields = ('departmentId', 'departmentName','department_staff')
+        fields = ('id','departmentName','department_staff')
 
 
 class EmployeeSerializer(serializers.ModelSerializer):
@@ -225,13 +223,4 @@ class ConsultationSerializer(serializers.ModelSerializer):
 
 
 
-    # def update(self, instance, validated_data):
-    #     doctor = validated_data.pop('doctor')
-    #     patient = validated_data.pop('patient')
-    #     print(patient)
-    #     patient_serializer = PatientSerializer()
-    #     doctor_serializer = EmployeeSerializer()
-    #     super(self.__class__, self).update(instance, validated_data)
-    #     patient_serializer.update(instance.patientId, patient)
-    #     doctor_serializer.update(instance.employeeId, doctor)
-    #     return instance
+

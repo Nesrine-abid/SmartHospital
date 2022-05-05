@@ -26,8 +26,8 @@ class Information(Address,File):
     email = models.EmailField(max_length=254,unique= True)
     password = models.CharField(max_length=254)
     phone = models.CharField(max_length=50)
-    cin = models.CharField(max_length=8)
-    passport = models.CharField(max_length=7)
+    cin = models.CharField(max_length=8,blank=True)
+    passport = models.CharField(max_length=7,blank=True)
     nationality = models.CharField(max_length=30)
     date_of_Birth = models.DateField()
     gender = models.CharField(max_length=30, choices=GENDER)
@@ -35,8 +35,7 @@ class Information(Address,File):
     # user_image = models.ImageField()
 
 class Department(models.Model):
-    departmentId = models.AutoField(primary_key=True)
-    departmentName = models.CharField(max_length=500)
+    departmentName = models.CharField(unique=True,max_length=200)
 
 class Patient(models.Model):
     patientId = models.AutoField(primary_key=True)
@@ -81,7 +80,7 @@ class Employee(Information,AbstractBaseUser):
     role = models.CharField(max_length=30, choices=ROLE)
     speciality = models.CharField(max_length=50)
     dateOfJoining = models.DateField()
-    department = models.ForeignKey(Department, on_delete=models.CASCADE,blank=True,null=True,related_name='department_staff')
+    department = models.ForeignKey(Department, on_delete=models.CASCADE,to_field="departmentName",blank=True,null=True,related_name='department_staff')
     patients = models.ManyToManyField(Patient, null=True, blank=True, related_name='staff_medical')
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
