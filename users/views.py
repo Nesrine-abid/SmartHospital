@@ -1,14 +1,17 @@
 from django.contrib.auth import authenticate, login, logout
-from django.http import Http404
+from django.http import Http404, JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework import status, generics
 from rest_framework.decorators import api_view, permission_classes
+from rest_framework.parsers import JSONParser, FileUploadParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
-from .models import User
+from .models import *
 from .emailVerification import send_otp_via_email
-from .serializers import RegistrationSerializer, PasswordChangeSerializer, PatientSerializer, VerifyAccountSerializer
+from .serializers import RegistrationSerializer, PasswordChangeSerializer, PatientSerializer, VerifyAccountSerializer, \
+    PatientSerializerForUpdate, FileSerializer
 
 
 def get_tokens_for_user(user):
@@ -62,6 +65,7 @@ class VerifyOTP(APIView):
             'message': 'something went wrong',
             'data': serializer.errors
         })
+
     def patch(self, request):
         data = request.data
         serializer = VerifyAccountSerializer(data=data)
@@ -74,8 +78,8 @@ class VerifyOTP(APIView):
                     'status': 400,
                     'message': 'there is no patient with this email'
                 })
-            status= send_otp_via_email(email)
-            if status :
+            status = send_otp_via_email(email)
+            if status:
                 return Response({
                     'status': 200,
                     'message': 'new otp sent'
@@ -92,6 +96,12 @@ class VerifyOTP(APIView):
         })
 
 
+class FileUpdateView(generics.RetrieveUpdateDestroyAPIView):
+    parser_class = (FileUploadParser,)
+    permission_classes = [IsAuthenticated, ]
+    queryset = File.objects.all()
+    serializer_class = FileSerializer
+
 
 class LoginView(APIView):
     def post(self, request):
@@ -107,10 +117,11 @@ class LoginView(APIView):
         return Response({'msg': 'Invalid Credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
-class LogoutView(APIView):
-    def post(self, request):
-        logout(request)
-        return Response({'msg': 'Successfully Logged out'}, status=status.HTTP_200_OK)
+# class LogoutView(APIView):
+#     permission_classes = [IsAuthenticated, ]
+#     def post(self, request):
+#         logout(request)
+#         return Response({'msg': 'Successfully Logged out'}, status=status.HTTP_200_OK)
 
 
 class ChangePasswordView(APIView):
@@ -131,13 +142,21 @@ class PatientListView(generics.ListCreateAPIView):
     serializer_class = PatientSerializer
 
 
-# get patient by id (patient/id) , delete patient by id and update patient by id (email dosent update)
-class PatientRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+# delete patient by id and update patient by id (email dosent update)
+class PatientUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsAuthenticated, ]
+    queryset = User.objects.all()
+    serializer_class = PatientSerializerForUpdate
+
+
+# get patient by id (patient/id)
+class PatientRetrieveView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthenticated, ]
     queryset = User.objects.all()
     serializer_class = PatientSerializer
 
 
+#
 # class PatientUpdateView(APIView):
 #     def get_object(self, pk):
 #         try:
@@ -170,3 +189,16 @@ def api_update_patient_view(request, id):
             data["success"] = "updated successfully"
             return Response(data=data)
         return Response(patient_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@csrf_exempt
+@permission_classes([IsAuthenticated])
+def patientUpdateApi(request, id=0):
+    if request.method == 'PUT':
+        patient_data = JSONParser().parse(request)
+        patient = User.objects.get(patientId=patient_data['patientId'])
+        patients_serializer = PatientSerializer(patient, data=patient_data)
+        if patients_serializer.is_valid():
+            patients_serializer.save()
+            return JsonResponse("Updated Successfully", safe=False)
+        return JsonResponse("Failed to Update", patients_serializer.errors, status=status.HTTP_400_BAD_REQUEST)

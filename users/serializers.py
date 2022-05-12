@@ -1,7 +1,13 @@
 from abc import ABC
 
 from rest_framework import serializers
-from .models import User, Information, Address
+from .models import User, Information, Address, File
+
+
+class FileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = File
+        fields = ('fileId', 'file')
 
 
 class RegistrationSerializer(serializers.ModelSerializer):
@@ -9,9 +15,9 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['email', 'cin', 'password', 'password2', 'occupation', 'firstName',
+        fields = ['email', 'cin', 'password', 'password2', 'firstName',
                   'lastName', 'phone', 'passport', 'nationality', 'date_of_Birth',
-                  'gender', 'country', 'city', 'street', 'postalCode']
+                  'gender']
         extra_kwargs = {
             'password': {'write_only': True}
         }
@@ -22,8 +28,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
                     , lastName=self.validated_data['lastName'], phone=self.validated_data['phone'],
                     passport=self.validated_data['passport'], nationality=self.validated_data['nationality'],
                     gender=self.validated_data['gender'],
-                    country=self.validated_data['country'], city=self.validated_data['city']
-                    , street=self.validated_data['street'], postalCode=self.validated_data['postalCode'])
+                    )
         password = self.validated_data['password']
         password2 = self.validated_data['password2']
         if password != password2:
@@ -61,7 +66,17 @@ class InformationSerializer(serializers.ModelSerializer):
         model = Information
         fields = (
             'firstName', 'lastName', 'email', 'password', 'phone', 'cin', 'passport', 'nationality', 'date_of_Birth',
-            'gender', 'address_ptr', 'user_image')
+            'gender', 'address_ptr')
+
+
+class InformationSerializerForUpdate(serializers.ModelSerializer):
+    address_ptr = AddressSerializer(required=True)
+
+    class Meta:
+        model = Information
+        fields = (
+            'firstName', 'lastName', 'phone', 'passport', 'nationality', 'date_of_Birth',
+            'gender', 'address_ptr')
 
     def updateInfo(self, instance, validated_data):
         address_ptr = validated_data.pop('address_ptr')
@@ -77,11 +92,20 @@ class PatientSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('patientId', 'information_ptr',
-                  'occupation', 'chronic_disease', 'allergy', 'consultations', 'staff_medical')
+                  'occupation', 'chronic_disease', 'allergy', 'consultations', 'staff_medical', 'is_Completed')
+
+
+class PatientSerializerForUpdate(serializers.ModelSerializer):
+    information_ptr = InformationSerializerForUpdate(required=False)
+
+    class Meta:
+        model = User
+        fields = ('patientId', 'information_ptr',
+                  'occupation', 'chronic_disease', 'allergy')
 
     def update(self, instance, validated_data):
         information_ptr = validated_data.pop('information_ptr')
-        info_serializer = InformationSerializer()
+        info_serializer = InformationSerializerForUpdate()
         super(self.__class__, self).update(instance, validated_data)
         info_serializer.updateInfo(instance.information_ptr, information_ptr)
         return instance
