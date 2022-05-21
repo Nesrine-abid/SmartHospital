@@ -2,26 +2,25 @@ from enum import Enum
 
 from django.contrib.auth.models import UserManager
 from django.db import models
-from users.models import User, Information
+from users.models import User, Information, Patient
 
 
 class Department(models.Model):
     departmentName = models.CharField(unique=True,max_length=500)
 
 
-class Employee(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
+class Employee(User):
     ROLE = (('doctor', 'doctor'),
             ('analysist', 'analysist'),
             ('radiologist', 'radiologist'),
             ('pharmacist', 'pharmacist'),
             ('secretary', 'secretary'))
-    # employeeId = models.AutoField(primary_key=True)
+    employeeId = models.AutoField(primary_key=True)
     role = models.CharField(max_length=30, choices=ROLE)
     speciality = models.CharField(max_length=50)
     dateOfJoining = models.DateField()
     department = models.ForeignKey(Department, on_delete=models.CASCADE,to_field="departmentName",blank=True,null=True,related_name='department_staff')
-    patients = models.ManyToManyField(User, blank=True, related_name='staff_medical')
+    patients = models.ManyToManyField(Patient, blank=True, related_name='staff_medical')
 
 
 class Consultation(models.Model):
@@ -31,7 +30,7 @@ class Consultation(models.Model):
     appointmentDate = models.DateField()
     doctor = models.ForeignKey(Employee, on_delete=models.CASCADE, related_name='consultations')
     appointmentState = models.CharField(max_length=30, choices=APPOINTMENT_STATE)
-    patient = models.ForeignKey(User, on_delete=models.CASCADE, related_name='consultations')
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE, related_name='consultations')
     prescriptionImage = models.ImageField(upload_to='uploads/% Y/% m/% d/', null=True, blank=True)
     prescriptionText = models.CharField(max_length=100, null=True, blank=True)
     doctorNotes = models.CharField(max_length=100, null=True, blank=True)

@@ -43,44 +43,30 @@ class RegistrationSerializer(serializers.ModelSerializer):
     password2 = serializers.CharField(style={"input_type": "password"}, write_only=True)
 
     class Meta:
-        model = User
+        model = Employee
         fields = ['email', 'cin', 'password', 'password2', 'firstName',
                   'lastName', 'phone', 'passport', 'nationality', 'date_of_Birth',
-                  'gender']
+                  'gender','role','department','speciality','dateOfJoining']
         extra_kwargs = {
             'password': {'write_only': True}
         }
 
-    def get_cleaned_data(self):
-        data = {
-            'role': self.validated_data.get('role', ''),
-            'speciality': self.validated_data.get('speciality', ''),
-            'dateOfJoining': self.validated_data.get('dateOfJoining'),
-            # 'department': self.validated_data.get('department', '')
-        }
-        return data
-
     def save(self):
-        user = User(email=self.validated_data['email'], cin=self.validated_data['cin'],
-                    firstName=self.validated_data['firstName'], lastName=self.validated_data['lastName'],
-                    phone=self.validated_data['phone'],
-                    passport=self.validated_data['passport'], nationality=self.validated_data['nationality'],
-                    date_of_Birth=self.validated_data['date_of_Birth'], gender=self.validated_data['gender'])
+        employee = Employee(email=self.validated_data['email'], cin=self.validated_data['cin'],
+                            firstName=self.validated_data['firstName'], lastName=self.validated_data['lastName'],
+                            phone=self.validated_data['phone'],
+                            passport=self.validated_data['passport'], nationality=self.validated_data['nationality'],
+                            date_of_Birth=self.validated_data['date_of_Birth'], gender=self.validated_data['gender'],
+                            department=self.validated_data['department'], dateOfJoining=self.validated_data['dateOfJoining'],
+                            role=self.validated_data['role'], speciality=self.validated_data['speciality'],)
         password = self.validated_data['password']
         password2 = self.validated_data['password2']
         if password != password2:
             raise serializers.ValidationError({'password': 'Passwords must match.'})
-        user.set_password(password)
-        user.is_Employee = True
-        user.save()
-        employee = Employee.objects.create(user=user)
-        employee.role = self.get_cleaned_data().get('role')
-        employee.speciality = self.get_cleaned_data().get('speciality')
-        employee.dateOfJoining = self.get_cleaned_data().get('dateOfJoining')
-        print(employee.dateOfJoining)
-
+        employee.set_password(password)
+        employee.is_Employee = True
         employee.save()
-        return user
+        return employee
 
 
 class ConsultationSerializer(serializers.ModelSerializer):
