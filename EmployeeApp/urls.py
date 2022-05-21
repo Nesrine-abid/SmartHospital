@@ -1,23 +1,19 @@
-from django.urls import re_path
-from EmployeeApp import views
-
+from django.urls import path
 from django.conf.urls.static import static
 from django.conf import settings
-
+from rest_framework_simplejwt import views as jwt_views
+from EmployeeApp.views import RegistrationEmployeeView, EmployeeListView, EmployeeRetrieveView, \
+    EmployeeUpdateDestroyView, LoginEmployeeView, api_create_department_view, departmentApi, DepartmentUpdateDelete
+from users.views import  ChangePasswordView
 urlpatterns = [
-                  re_path(r'^patient$', views.patientApi),
-                  re_path(r'^patient/([0-9]+)$', views.patientApi),
-
-                  re_path(r'^employee$', views.employeeApi),
-                  re_path(r'^employee/([0-9]+)$', views.employeeApi),
-
-                  re_path(r'^consultation$', views.consultationApi),
-                  re_path(r'^consultation/([0-9]+)$', views.consultationApi),
-                  re_path(r'^consultation/savefile', views.SaveFile),
-                  #
-                  #     re_path(r'^employee$', views.employeeApi),
-                  #     re_path(r'^employee/([0-9]+)$', views.employeeApi),
-                  #     re_path(r'^employee/savefile', views.SaveFile),
-                  #
-                  # re_path('', views.defaultApi),
+                  path('accounts/register/employee', RegistrationEmployeeView.as_view(), name='register'),
+                  path('accounts/login/employee', LoginEmployeeView.as_view(), name='login'),
+                  path('accounts/change-password/employee', ChangePasswordView.as_view(), name='change-password'),
+                  path('accounts/token-refresh/', jwt_views.TokenRefreshView.as_view(), name='token_refresh'),
+                  path('employees', EmployeeListView.as_view()),
+                  path('employee/<int:pk>', EmployeeRetrieveView.as_view()),
+                  path('employee/update/<int:pk>', EmployeeUpdateDestroyView.as_view()),
+                  path('department/<int:pk>', DepartmentUpdateDelete.as_view()),
+                  path('department/create', api_create_department_view),
+                  path('departments', departmentApi),
               ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
