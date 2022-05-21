@@ -1,134 +1,77 @@
-from django.core.files.storage import default_storage
-from django.core.serializers.json import DjangoJSONEncoder
-from django.db.models.fields.files import ImageFieldFile
-from django.http import JsonResponse, HttpResponse
-from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth import login
 from rest_framework.decorators import api_view
-from rest_framework.parsers import JSONParser
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.views import APIView
+from EmployeeApp.serializers import *
+from rest_framework import status, generics
+from django.contrib.auth import authenticate, login, logout
 
-from EmployeeApp.models import Department, Employee, Consultation
-from EmployeeApp.serializers import DepartmentSerializer,  EmployeeSerializer, ConsultationSerializer
-from rest_framework import status
-
-
-@csrf_exempt
-
-# def patientApi(request, id=0):
-#     if request.method == 'GET':
-#         patients = Patient.objects.all()
-#         patients_serializer = PatientSerializer(patients, many=True)  # convert it into json format
-#         return JsonResponse(patients_serializer.data, safe=False)
-#     elif request.method == 'POST':
-#         patient_data = JSONParser().parse(request)
-#         patients_serializer = PatientSerializer(data=patient_data)  # convert it into model
-#         if patients_serializer.is_valid():
-#             patients_serializer.save()
-#             return JsonResponse("Added Successfully", safe=False)
-#         return JsonResponse("Failed to Add", safe=False)
-#     elif request.method == 'PUT':
-#         patient_data = JSONParser().parse(request)
-#         patient = Patient.objects.get(patientId=patient_data['patientId'])
-#         patients_serializer = PatientSerializer(patient, data=patient_data)
-#         if patients_serializer.is_valid():
-#             patients_serializer.save()
-#             return JsonResponse("Updated Successfully", safe=False)
-#         return JsonResponse("Failed to Update", patients_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-#
-#     elif request.method == 'DELETE':
-#         patient = Patient.objects.get(patientId=id)
-#         patient.info_patient.address.delete()
-#         patient.delete()
-#         return JsonResponse("Deleted Successfully", safe=False)
+from users.views import get_tokens_for_user
 
 
-@csrf_exempt
-def employeeApi(request, id=0):
-    if request.method == 'GET':
-        employees = Employee.objects.all()
-        employees_serializer = EmployeeSerializer(employees, many=True)
-        return JsonResponse(employees_serializer.data, safe=False)
-    elif request.method == 'POST':
-        employee_data = JSONParser().parse(request)
-        employees_serializer = EmployeeSerializer(data=employee_data)
-        if employees_serializer.is_valid():
-            employees_serializer.save()
-            return JsonResponse("Added Successfully", safe=False)
-        return JsonResponse("Failed to Add", safe=False)
-    elif request.method == 'PUT':
-        employee_data = JSONParser().parse(request)
-        employee = Employee.objects.get(employeeId=employee_data['employeeId'])
-        employees_serializer = EmployeeSerializer(employee, data=employee_data)
-        if employees_serializer.is_valid():
-            employees_serializer.save()
-            return JsonResponse("Updated Successfully", safe=False)
-        return JsonResponse("Failed to Update")
-    elif request.method == 'DELETE':
-        employee = Employee.objects.get(employeeId=id)
-        employee.info_Employee.address.delete()
-        employee.delete()
-        return JsonResponse("Deleted Successfully", safe=False)
+class LoginEmployeeView(APIView):
+    def post(self, request):
+        if 'email' not in request.data or 'password' not in request.data:
+            return Response({'msg': 'Credentials missing'}, status=status.HTTP_400_BAD_REQUEST)
+        email = request.data['email']
+        password = request.data['password']
+        user = authenticate(request, email=email, password=password)
+        if user is not None:
+            login(request, user)
+            auth_data = get_tokens_for_user(request.user)
+            return Response({'msg': 'Login Success', **auth_data}, status=status.HTTP_200_OK)
+        return Response({'msg': 'Invalid Credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
+class RegistrationEmployeeView(APIView):
+    def post(self, request):
+        serializer = RegistrationSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-def consultationToDictionary(consultation):
-    data = {}
-    data['consultationId'] = consultation.consultationId
-    data['doctor'] = consultation.doctor.employeeId
-    data['patient'] = consultation.patient.patientId
-    data['appointmentDate'] = consultation.appointmentDate
-    data['appointmentState'] = consultation.appointmentState
-    # data['prescriptionImage'] = consultation.prescriptionImage
-    data['prescriptionText'] = consultation.prescriptionText
-    data['doctorNotes'] = consultation.doctorNotes
-    data['temperature'] = consultation.temperature
-    data['bloodPressure'] = consultation.bloodPressure
 
-    return data
-# class CustomEncoder(DjangoJSONEncoder):
-#     def default(self, obj):
-#         if isinstance(obj, ImageFieldFile):
-#             return obj.name
-#         return super(CustomEncoder, self).default(obj)
-@csrf_exempt
-@api_view(["POST"])
-def consultationApi(request, id=0):
-    if request.method == 'GET':
-        consultations = Consultation.objects.all()
-        tempConsultations = []
-        for i in range(len(consultations)):
-            print(consultations[i])
-            tempConsultations.append(
-                consultationToDictionary(consultations[i]))  # Converting `QuerySet` to a Python Dictionary
-        consultations = tempConsultations
-        return JsonResponse(consultations, safe=False)
-    elif request.method == 'POST':
-        consultation_serializer = ConsultationSerializer(data=request.data)
-        if consultation_serializer.is_valid():
-            consultation_serializer.save()
+@api_view(['POST'])
+def api_create_department_view(request):
+    if request.method == 'POST':
+        department_serializer = DepartmentSerializer(data=request.data)
+        if department_serializer.is_valid():
+            department_serializer.save()
             return Response("Added Successfully", status=status.HTTP_201_CREATED)
         return Response("Failed to Add", status=status.HTTP_400_BAD_REQUEST)
-    elif request.method == 'PUT':
-        consultation_data = request.data
-        consultation = Consultation.objects.get(consultationId=consultation_data['consultationId'])
-        consultation_serializer = ConsultationSerializer(consultation, data=consultation_data)
-        if consultation_serializer.is_valid():
-            consultation_serializer.save()
-            return JsonResponse("Updated Successfully", safe=False)
-        return JsonResponse("Failed to Update", safe=False)
-    elif request.method == 'DELETE':
-        consultation = Consultation.objects.get(consultationId=id)
-        consultation.delete()
-        return JsonResponse("Deleted Successfully", safe=False)
 
 
-@csrf_exempt
-def SaveFile(request):
-    file = request.FILES['file']
-    file_name = default_storage.save(file.name, file)
-    return JsonResponse(file_name, safe=False)
+@api_view(['GET', ])
+def departmentApi(request):
+    if request.method == 'GET':
+        departments = Department.objects.all()
+        departments_serializer = DepartmentSerializer(departments, many=True)  # convert it into json format
+        return Response(departments_serializer.data)
 
 
-@csrf_exempt
-def defaultApi(request):
-    return HttpResponse("hello I am working")
+class DepartmentUpdateDelete(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Department.objects.all()
+    serializer_class = DepartmentSerializer
+
+
+# get all employees
+class EmployeeListView(generics.ListCreateAPIView):
+    permission_classes = [IsAuthenticated, ]
+    queryset = Employee.objects.all()
+    serializer_class = EmployeeSerializer
+
+
+# delete employee by id and update employee by id (email dosent update)
+class EmployeeUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsAuthenticated, ]
+    queryset = Employee.objects.all()
+    serializer_class = EmployeeSerializerForUpdate
+
+
+# get employee by id (employee/id)
+class EmployeeRetrieveView(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsAuthenticated, ]
+    queryset = Employee.objects.all()
+    serializer_class = EmployeeSerializer

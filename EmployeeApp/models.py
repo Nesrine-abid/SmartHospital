@@ -6,22 +6,21 @@ from users.models import User, Information
 
 
 class Department(models.Model):
-    departmentId = models.AutoField(primary_key=True)
-    departmentName = models.CharField(max_length=500)
+    departmentName = models.CharField(unique=True,max_length=500)
 
 
 class Employee(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
     ROLE = (('doctor', 'doctor'),
             ('analysist', 'analysist'),
             ('radiologist', 'radiologist'),
             ('pharmacist', 'pharmacist'),
             ('secretary', 'secretary'))
-    employeeId = models.AutoField(primary_key=True)
+    # employeeId = models.AutoField(primary_key=True)
     role = models.CharField(max_length=30, choices=ROLE)
     speciality = models.CharField(max_length=50)
     dateOfJoining = models.DateField()
-    info_Employee = models.OneToOneField(Information, on_delete=models.CASCADE)
-    department = models.ForeignKey(Department, on_delete=models.CASCADE, related_name="employees")
+    department = models.ForeignKey(Department, on_delete=models.CASCADE,to_field="departmentName",blank=True,null=True,related_name='department_staff')
     patients = models.ManyToManyField(User, blank=True, related_name='staff_medical')
 
 

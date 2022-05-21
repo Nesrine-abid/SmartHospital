@@ -1,7 +1,9 @@
 from abc import ABC
 
 from rest_framework import serializers
-from .models import User, Information, Address, File
+from rest_framework.parsers import FileUploadParser
+
+from .models import User, Information, Address, File, Patient
 
 
 class FileSerializer(serializers.ModelSerializer):
@@ -34,7 +36,10 @@ class RegistrationSerializer(serializers.ModelSerializer):
         if password != password2:
             raise serializers.ValidationError({'password': 'Passwords must match.'})
         user.set_password(password)
+        user.is_Patient = True
         user.save()
+        patient = Patient.objects.create(user=user)
+        patient.save()
         return user
 
 
@@ -61,21 +66,23 @@ class AddressSerializer(serializers.ModelSerializer):
 
 class InformationSerializer(serializers.ModelSerializer):
     address_ptr = AddressSerializer(required=True)
+    file_ptr = FileSerializer(required=True)
 
     class Meta:
         model = Information
         fields = (
-            'firstName', 'lastName', 'email', 'password', 'phone', 'cin', 'passport', 'nationality', 'date_of_Birth',
-            'gender', 'address_ptr')
+            'firstName', 'email', 'lastName', 'password', 'phone', 'cin', 'passport', 'nationality', 'date_of_Birth',
+            'gender', 'address_ptr', 'file_ptr')
 
 
 class InformationSerializerForUpdate(serializers.ModelSerializer):
+    parser_class = (FileUploadParser,)
     address_ptr = AddressSerializer(required=True)
 
     class Meta:
         model = Information
         fields = (
-            'firstName', 'lastName', 'phone', 'passport', 'nationality', 'date_of_Birth',
+            'firstName', 'lastName', 'password', 'phone', 'cin', 'passport', 'nationality', 'date_of_Birth',
             'gender', 'address_ptr')
 
     def updateInfo(self, instance, validated_data):
@@ -83,7 +90,8 @@ class InformationSerializerForUpdate(serializers.ModelSerializer):
         address_serializer = AddressSerializer()
         super(self.__class__, self).update(instance, validated_data)
         super(AddressSerializer, address_serializer).update(instance.address_ptr, address_ptr)
-        return
+
+        return instance
 
 
 class PatientSerializer(serializers.ModelSerializer):

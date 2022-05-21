@@ -18,7 +18,7 @@ class Address(models.Model):
     postalCode = models.CharField(max_length=200)
 
 
-class Information(Address,File, models.Model):
+class Information(Address, File, models.Model):
     informationId = models.AutoField(primary_key=True)
     GENDER = (('male', 'male'),
               ('female', 'female'))
@@ -61,12 +61,8 @@ class MyUserManager(BaseUserManager):
 
 
 class User(Information, AbstractBaseUser):
-    patientId = models.AutoField(primary_key=True)
-    is_verified = models.BooleanField(default=False)
-    otp = models.CharField(max_length=200, null=True, blank=True)
-    occupation = models.CharField(max_length=100, blank=True)
-    chronic_disease = models.CharField(max_length=100, blank=True)
-    allergy = models.CharField(max_length=100, blank=True)
+    is_Patient = models.BooleanField(default=False)
+    is_Employee = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
@@ -81,3 +77,12 @@ class User(Information, AbstractBaseUser):
 
     def has_module_perms(self, app_label):
         return self.is_admin
+
+
+class Patient(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE,primary_key=True)
+    is_verified = models.BooleanField(default=False)
+    otp = models.CharField(max_length=200, null=True, blank=True)
+    occupation = models.CharField(max_length=100, blank=True)
+    chronic_disease = models.CharField(max_length=100, blank=True)
+    allergy = models.CharField(max_length=100, blank=True)

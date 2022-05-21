@@ -27,6 +27,7 @@ def get_tokens_for_user(user):
 class RegistrationView(APIView):
     def post(self, request):
         serializer = RegistrationSerializer(data=request.data)
+        print(serializer)
         if serializer.is_valid():
             serializer.save()
             print(serializer.data['email'])
@@ -132,27 +133,27 @@ class ChangePasswordView(APIView):
         serializer.is_valid(raise_exception=True)  # Another way to write is as in Line 17
         request.user.set_password(serializer.validated_data['new_password'])
         request.user.save()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response({'msg': 'Successfully changed'} , status=status.HTTP_204_NO_CONTENT)
 
 
 # get list of all patients
 class PatientListView(generics.ListCreateAPIView):
     permission_classes = [IsAuthenticated, ]
-    queryset = User.objects.all()
+    queryset = Patient.objects.all()
     serializer_class = PatientSerializer
 
 
 # delete patient by id and update patient by id (email dosent update)
 class PatientUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthenticated, ]
-    queryset = User.objects.all()
+    queryset = Patient.objects.all()
     serializer_class = PatientSerializerForUpdate
 
 
 # get patient by id (patient/id)
 class PatientRetrieveView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthenticated, ]
-    queryset = User.objects.all()
+    queryset = Patient.objects.all()
     serializer_class = PatientSerializer
 
 

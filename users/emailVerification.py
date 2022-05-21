@@ -3,7 +3,7 @@ import random
 from django.conf import settings
 from django.core.cache import cache
 
-from .models import User
+from .models import User, Patient
 
 
 def send_otp_via_email(email):
