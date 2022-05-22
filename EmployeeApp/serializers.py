@@ -19,8 +19,8 @@ class EmployeeSerializer(serializers.ModelSerializer):
     department = DepartmentSerializer(required=True)
 
     class Meta:
-        model = User
-        fields = ('employeeId', 'information_ptr', 'role', 'speciality', 'dateOfJoining', 'department', 'patients',
+        model = Employee
+        fields = ('employeeId','user_ptr_id', 'information_ptr', 'role', 'speciality', 'dateOfJoining', 'department', 'patients',
                   'consultations')
 
 
@@ -28,8 +28,8 @@ class EmployeeSerializerForUpdate(serializers.ModelSerializer):
     information_ptr = InformationSerializerForUpdate(required=False)
 
     class Meta:
-        model = User
-        fields = ('employeeId', 'information_ptr', 'role', 'speciality', 'dateOfJoining', 'patients', 'consultations')
+        model = Employee
+        fields = ('employeeId', 'information_ptr','user_ptr_id', 'role', 'speciality', 'dateOfJoining', 'patients', 'consultations')
 
     def update(self, instance, validated_data):
         information_ptr = validated_data.pop('information_ptr')
