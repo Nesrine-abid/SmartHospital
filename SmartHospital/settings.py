@@ -14,7 +14,7 @@ from pathlib import Path
 import os
 
 from django import middleware
-from django.core.cache.backends.redis import RedisCache
+
 
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
 MEDIA_URL = '/media/'

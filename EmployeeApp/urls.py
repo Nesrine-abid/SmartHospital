@@ -12,7 +12,7 @@ urlpatterns = [
                   path('accounts/token-refresh/', jwt_views.TokenRefreshView.as_view(), name='token_refresh'),
                   path('employees', EmployeeListView.as_view()),
                   path('employee/<int:pk>', EmployeeRetrieveView.as_view()),
-                  path('employee/update/<int:pk>', EmployeeUpdateDestroyView.as_view()),
+                  path('employee/updateOrDelete/<int:pk>', EmployeeUpdateDestroyView.as_view()),
                   path('department/<int:pk>', DepartmentUpdateDelete.as_view()),
                   path('department/create', api_create_department_view),
                   path('departments', departmentApi),
