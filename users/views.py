@@ -44,7 +44,7 @@ class VerifyOTP(APIView):
         if serializer.is_valid():
             email = serializer.data['email']
             otp = serializer.data['otp']
-            user = User.objects.filter(email=email)
+            user = Patient.objects.filter(email=email)
             if not user.exists():
                 return Response({
                     'status': 400,
@@ -73,7 +73,7 @@ class VerifyOTP(APIView):
         if serializer.is_valid():
             email = serializer.data['email']
             otp = serializer.data['otp']
-            user = User.objects.filter(email=email)
+            user = Patient.objects.filter(email=email)
             if not user.exists():
                 return Response({
                     'status': 400,

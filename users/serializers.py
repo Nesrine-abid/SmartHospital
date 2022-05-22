@@ -16,7 +16,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
     password2 = serializers.CharField(style={"input_type": "password"}, write_only=True)
 
     class Meta:
-        model = User
+        model = Patient
         fields = ['email', 'cin', 'password', 'password2', 'firstName',
                   'lastName', 'phone', 'passport', 'nationality', 'date_of_Birth',
                   'gender']
@@ -25,22 +25,20 @@ class RegistrationSerializer(serializers.ModelSerializer):
         }
 
     def save(self):
-        user = User(email=self.validated_data['email'], cin=self.validated_data['cin'],
-                    firstName=self.validated_data['firstName']
-                    , lastName=self.validated_data['lastName'], phone=self.validated_data['phone'],
-                    passport=self.validated_data['passport'], nationality=self.validated_data['nationality'],
-                    gender=self.validated_data['gender'],
-                    )
+        patient = Patient(email=self.validated_data['email'], cin=self.validated_data['cin'],
+                          firstName=self.validated_data['firstName']
+                          , lastName=self.validated_data['lastName'], phone=self.validated_data['phone'],
+                          passport=self.validated_data['passport'], nationality=self.validated_data['nationality'],
+                          gender=self.validated_data['gender'],date_of_Birth=self.validated_data['date_of_Birth'],
+                          )
         password = self.validated_data['password']
         password2 = self.validated_data['password2']
         if password != password2:
             raise serializers.ValidationError({'password': 'Passwords must match.'})
-        user.set_password(password)
-        user.is_Patient = True
-        user.save()
-        patient = Patient.objects.create(user=user)
+        patient.set_password(password)
+        patient.is_Patient = True
         patient.save()
-        return user
+        return patient
 
 
 class VerifyAccountSerializer(serializers.Serializer):
@@ -98,8 +96,8 @@ class PatientSerializer(serializers.ModelSerializer):
     information_ptr = InformationSerializer(required=False)
 
     class Meta:
-        model = User
-        fields = ('patientId', 'information_ptr',
+        model = Patient
+        fields = ('patientId', 'information_ptr','user_ptr',
                   'occupation', 'chronic_disease', 'allergy', 'consultations', 'staff_medical', 'is_Completed')
 
 
@@ -107,7 +105,7 @@ class PatientSerializerForUpdate(serializers.ModelSerializer):
     information_ptr = InformationSerializerForUpdate(required=False)
 
     class Meta:
-        model = User
+        model = Patient
         fields = ('patientId', 'information_ptr',
                   'occupation', 'chronic_disease', 'allergy')
 

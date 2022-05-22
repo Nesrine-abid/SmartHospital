@@ -79,8 +79,8 @@ class User(Information, AbstractBaseUser):
         return self.is_admin
 
 
-class Patient(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE,primary_key=True)
+class Patient(User,models.Model):
+    patientId = models.AutoField(primary_key=True)
     is_verified = models.BooleanField(default=False)
     otp = models.CharField(max_length=200, null=True, blank=True)
     occupation = models.CharField(max_length=100, blank=True)
