@@ -114,7 +114,11 @@ class LoginView(APIView):
         if user is not None:
             login(request, user)
             auth_data = get_tokens_for_user(request.user)
-            return Response({'msg': 'Login Success', **auth_data}, status=status.HTTP_200_OK)
+            print("user",user.is_Patient)
+            return Response({'msg': 'Login Success', **auth_data ,
+                             'is_Patient':user.is_Patient,
+                             'is_Employee':user.is_Employee,
+                             'is_admin':user.is_admin}, status=status.HTTP_200_OK)
         return Response({'msg': 'Invalid Credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
