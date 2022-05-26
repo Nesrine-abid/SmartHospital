@@ -20,8 +20,16 @@ class EmployeeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Employee
-        fields = ('employeeId','user_ptr_id', 'information_ptr', 'role', 'speciality', 'dateOfJoining', 'department', 'patients',
-                  'consultations')
+        fields = (
+            'employeeId', 'user_ptr_id', 'information_ptr', 'role', 'speciality', 'dateOfJoining', 'department',
+            'patients',
+            'consultations')
+
+
+class EmployeeAccountsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Employee
+        fields = ('firstName','lastName','email', 'role', 'speciality', 'is_verified','employeeId')
 
 
 class EmployeeSerializerForUpdate(serializers.ModelSerializer):
@@ -29,7 +37,8 @@ class EmployeeSerializerForUpdate(serializers.ModelSerializer):
 
     class Meta:
         model = Employee
-        fields = ('employeeId', 'information_ptr','user_ptr_id', 'role', 'speciality', 'dateOfJoining', 'patients', 'consultations')
+        fields = ('employeeId', 'information_ptr', 'user_ptr_id', 'role', 'speciality', 'dateOfJoining', 'patients',
+                  'consultations')
 
     def update(self, instance, validated_data):
         information_ptr = validated_data.pop('information_ptr')
@@ -46,7 +55,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
         model = Employee
         fields = ['email', 'cin', 'password', 'password2', 'firstName',
                   'lastName', 'phone', 'passport', 'nationality', 'date_of_Birth',
-                  'gender','role','department','speciality','dateOfJoining']
+                  'gender', 'role', 'department', 'speciality', 'dateOfJoining']
         extra_kwargs = {
             'password': {'write_only': True}
         }
@@ -57,8 +66,9 @@ class RegistrationSerializer(serializers.ModelSerializer):
                             phone=self.validated_data['phone'],
                             passport=self.validated_data['passport'], nationality=self.validated_data['nationality'],
                             date_of_Birth=self.validated_data['date_of_Birth'], gender=self.validated_data['gender'],
-                            department=self.validated_data['department'], dateOfJoining=self.validated_data['dateOfJoining'],
-                            role=self.validated_data['role'], speciality=self.validated_data['speciality'],)
+                            department=self.validated_data['department'],
+                            dateOfJoining=self.validated_data['dateOfJoining'],
+                            role=self.validated_data['role'], speciality=self.validated_data['speciality'], )
         password = self.validated_data['password']
         password2 = self.validated_data['password2']
         if password != password2:

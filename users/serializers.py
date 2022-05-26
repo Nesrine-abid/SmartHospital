@@ -29,7 +29,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
                           firstName=self.validated_data['firstName']
                           , lastName=self.validated_data['lastName'], phone=self.validated_data['phone'],
                           passport=self.validated_data['passport'], nationality=self.validated_data['nationality'],
-                          gender=self.validated_data['gender'],date_of_Birth=self.validated_data['date_of_Birth'],
+                          gender=self.validated_data['gender'], date_of_Birth=self.validated_data['date_of_Birth'],
                           )
         password = self.validated_data['password']
         password2 = self.validated_data['password2']
@@ -44,6 +44,10 @@ class RegistrationSerializer(serializers.ModelSerializer):
 class VerifyAccountSerializer(serializers.Serializer):
     email = serializers.EmailField()
     otp = serializers.CharField()
+
+
+class ConfirmAccountSerializer(serializers.Serializer):
+    email = serializers.EmailField()
 
 
 class PasswordChangeSerializer(serializers.Serializer):
@@ -97,7 +101,7 @@ class PatientSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Patient
-        fields = ('patientId', 'information_ptr','user_ptr',
+        fields = ('patientId', 'information_ptr', 'user_ptr',
                   'occupation', 'chronic_disease', 'allergy', 'consultations', 'staff_medical', 'is_Completed')
 
 

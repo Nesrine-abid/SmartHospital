@@ -20,7 +20,10 @@ class LoginEmployeeView(APIView):
         if user is not None:
             login(request, user)
             auth_data = get_tokens_for_user(request.user)
-            return Response({'msg': 'Login Success', **auth_data}, status=status.HTTP_200_OK)
+            return Response({'msg': 'Login Success', **auth_data,
+                             'is_Patient': user.is_Patient,
+                             'is_Employee': user.is_Employee,
+                             'is_admin': user.is_admin}, status=status.HTTP_200_OK)
         return Response({'msg': 'Invalid Credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
@@ -61,6 +64,27 @@ class EmployeeListView(generics.ListCreateAPIView):
     permission_classes = [IsAuthenticated, ]
     queryset = Employee.objects.all()
     serializer_class = EmployeeSerializer
+
+
+# //get all doctors
+class DoctorsListView(generics.ListCreateAPIView):
+    permission_classes = [IsAuthenticated, ]
+    queryset = Employee.objects.filter(role="doctor")
+    serializer_class = EmployeeAccountsSerializer
+
+
+# get all lab staff
+class LaboratoryStaffListView(generics.ListCreateAPIView):
+    permission_classes = [IsAuthenticated, ]
+    queryset = Employee.objects.filter(role ="analysist")
+    serializer_class = EmployeeAccountsSerializer
+
+
+# get all pharmacists
+class PharmacistListView(generics.ListCreateAPIView):
+    permission_classes = [IsAuthenticated, ]
+    queryset = Employee.objects.filter(role="pharmacist")
+    serializer_class = EmployeeAccountsSerializer
 
 
 # delete employee by id and update employee by id (email dosent update)

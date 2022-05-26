@@ -21,6 +21,7 @@ class Employee(User):
     dateOfJoining = models.DateField()
     department = models.ForeignKey(Department, on_delete=models.CASCADE,to_field="departmentName",blank=True,null=True,related_name='department_staff')
     patients = models.ManyToManyField(Patient, blank=True, related_name='staff_medical')
+    is_verified = models.BooleanField(default=False)
 
 
 class Consultation(models.Model):

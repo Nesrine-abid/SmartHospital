@@ -8,10 +8,12 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
+
+from EmployeeApp.models import Employee
 from .models import *
 from .emailVerification import send_otp_via_email
 from .serializers import RegistrationSerializer, PasswordChangeSerializer, PatientSerializer, VerifyAccountSerializer, \
-    PatientSerializerForUpdate, FileSerializer
+    PatientSerializerForUpdate, FileSerializer, ConfirmAccountSerializer
 
 
 def get_tokens_for_user(user):
@@ -114,11 +116,11 @@ class LoginView(APIView):
         if user is not None:
             login(request, user)
             auth_data = get_tokens_for_user(request.user)
-            print("user",user.is_Patient)
-            return Response({'msg': 'Login Success', **auth_data ,
-                             'is_Patient':user.is_Patient,
-                             'is_Employee':user.is_Employee,
-                             'is_admin':user.is_admin}, status=status.HTTP_200_OK)
+            print("user", user.is_Patient)
+            return Response({'msg': 'Login Success', **auth_data,
+                             'is_Patient': user.is_Patient,
+                             'is_Employee': user.is_Employee,
+                             'is_admin': user.is_admin}, status=status.HTTP_200_OK)
         return Response({'msg': 'Invalid Credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
@@ -137,7 +139,7 @@ class ChangePasswordView(APIView):
         serializer.is_valid(raise_exception=True)  # Another way to write is as in Line 17
         request.user.set_password(serializer.validated_data['new_password'])
         request.user.save()
-        return Response({'msg': 'Successfully changed'} , status=status.HTTP_204_NO_CONTENT)
+        return Response({'msg': 'Successfully changed'}, status=status.HTTP_204_NO_CONTENT)
 
 
 # get list of all patients
@@ -160,25 +162,6 @@ class PatientRetrieveView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Patient.objects.all()
     serializer_class = PatientSerializer
 
-
-#
-# class PatientUpdateView(APIView):
-#     def get_object(self, pk):
-#         try:
-#             return User.objects.get(pk=pk)
-#         except User.DoesNotExist:
-#             raise Http404
-#
-#     def put(self, request, pk, format=None):
-#         patient = self.get_object(pk)
-#         serializer = PatientSerializer(patient, data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-# put method not allowed
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
 def api_update_patient_view(request, id):
@@ -207,3 +190,29 @@ def patientUpdateApi(request, id=0):
             patients_serializer.save()
             return JsonResponse("Updated Successfully", safe=False)
         return JsonResponse("Failed to Update", patients_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ConfirmAccount(APIView):
+    def post(self, request):
+        data = request.data
+        serializer = ConfirmAccountSerializer(data=data)
+        if serializer.is_valid():
+            email = serializer.data['email']
+            employee = Employee.objects.filter(email=email)
+            if not employee.exists():
+                return Response({
+                    'status': 400,
+                    'message': 'there is no employee with this email'
+                })
+            employee = employee.first()
+            employee.is_verified = True
+            employee.save()
+            return Response({
+                'status': 200,
+                'message': 'account confirmed'
+            })
+        return Response({
+            'status': 400,
+            'message': 'something went wrong',
+            'data': serializer.errors
+        })
