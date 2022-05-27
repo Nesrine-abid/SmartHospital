@@ -80,7 +80,6 @@ class User(Information, AbstractBaseUser):
 
 
 class Patient(User,models.Model):
-    patientId = models.AutoField(primary_key=True)
     is_verified = models.BooleanField(default=False)
     otp = models.CharField(max_length=200, null=True, blank=True)
     occupation = models.CharField(max_length=100, blank=True)

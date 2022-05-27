@@ -184,7 +184,7 @@ def api_update_patient_view(request, id):
 def patientUpdateApi(request, id=0):
     if request.method == 'PUT':
         patient_data = JSONParser().parse(request)
-        patient = User.objects.get(patientId=patient_data['patientId'])
+        patient = User.objects.get(user_ptr=patient_data['user_ptr'])
         patients_serializer = PatientSerializer(patient, data=patient_data)
         if patients_serializer.is_valid():
             patients_serializer.save()

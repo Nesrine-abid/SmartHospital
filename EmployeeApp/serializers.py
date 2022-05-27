@@ -20,8 +20,7 @@ class EmployeeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Employee
-        fields = (
-            'employeeId', 'user_ptr_id', 'information_ptr', 'role', 'speciality', 'dateOfJoining', 'department',
+        fields = ( 'user_ptr_id', 'information_ptr', 'role', 'speciality', 'dateOfJoining', 'department',
             'patients',
             'consultations')
 
@@ -29,7 +28,7 @@ class EmployeeSerializer(serializers.ModelSerializer):
 class EmployeeAccountsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Employee
-        fields = ('firstName','lastName','email', 'role', 'speciality', 'is_verified','employeeId')
+        fields = ('firstName','lastName','email', 'role', 'speciality', 'is_verified','user_ptr_id')
 
 
 class EmployeeSerializerForUpdate(serializers.ModelSerializer):
@@ -37,7 +36,7 @@ class EmployeeSerializerForUpdate(serializers.ModelSerializer):
 
     class Meta:
         model = Employee
-        fields = ('employeeId', 'information_ptr', 'user_ptr_id', 'role', 'speciality', 'dateOfJoining', 'patients',
+        fields = ('user_ptr_id', 'information_ptr', 'role', 'speciality', 'dateOfJoining', 'patients',
                   'consultations')
 
     def update(self, instance, validated_data):

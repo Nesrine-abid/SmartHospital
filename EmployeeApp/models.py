@@ -15,7 +15,6 @@ class Employee(User):
             ('radiologist', 'radiologist'),
             ('pharmacist', 'pharmacist'),
             ('secretary', 'secretary'))
-    employeeId = models.AutoField(primary_key=True)
     role = models.CharField(max_length=30, choices=ROLE)
     speciality = models.CharField(max_length=50)
     dateOfJoining = models.DateField()

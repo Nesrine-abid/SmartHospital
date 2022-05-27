@@ -101,7 +101,7 @@ class PatientSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Patient
-        fields = ('patientId', 'information_ptr', 'user_ptr',
+        fields = ('information_ptr', 'user_ptr_id',
                   'occupation', 'chronic_disease', 'allergy', 'consultations', 'staff_medical', 'is_Completed')
 
 
@@ -110,7 +110,7 @@ class PatientSerializerForUpdate(serializers.ModelSerializer):
 
     class Meta:
         model = Patient
-        fields = ('patientId', 'information_ptr',
+        fields = ('user_ptr_id', 'information_ptr',
                   'occupation', 'chronic_disease', 'allergy')
 
     def update(self, instance, validated_data):
