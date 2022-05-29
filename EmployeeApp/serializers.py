@@ -20,15 +20,15 @@ class EmployeeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Employee
-        fields = ( 'user_ptr_id', 'information_ptr', 'role', 'speciality', 'dateOfJoining', 'department',
-            'patients',
-            'consultations')
+        fields = ('user_ptr_id', 'information_ptr', 'role', 'speciality', 'dateOfJoining', 'department',
+                  'patients',
+                  'consultations')
 
 
 class EmployeeAccountsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Employee
-        fields = ('firstName','lastName','email', 'role', 'speciality', 'is_verified','user_ptr_id')
+        fields = ('firstName', 'lastName', 'email', 'role', 'speciality', 'is_verified', 'user_ptr_id')
 
 
 class EmployeeSerializerForUpdate(serializers.ModelSerializer):
@@ -36,8 +36,8 @@ class EmployeeSerializerForUpdate(serializers.ModelSerializer):
 
     class Meta:
         model = Employee
-        fields = ('user_ptr_id', 'information_ptr', 'role', 'speciality', 'dateOfJoining', 'patients',
-                  'consultations')
+        fields = ('user_ptr_id', 'information_ptr', 'speciality', 'dateOfJoining'
+                  )
 
     def update(self, instance, validated_data):
         information_ptr = validated_data.pop('information_ptr')
@@ -79,8 +79,6 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
 
 class ConsultationSerializer(serializers.ModelSerializer):
-    parser_classes = [FileUploadParser]
-
     class Meta:
         model = Consultation
         fields = (
@@ -88,49 +86,64 @@ class ConsultationSerializer(serializers.ModelSerializer):
             'prescriptionText',
             'doctorNotes', 'temperature', 'bloodPressure')
 
-        def update(self, instance, validated_data):
-            consultations_id_pool = []
+    def save(self):
+        consultation = Consultation(appointmentDate=self.validated_data['appointmentDate'],
+                                    appointmentState=self.validated_data['appointmentState'],
+                                    doctor=self.validated_data['doctor'],
+                                    bloodPressure=self.validated_data['bloodPressure'],
+                                    patient=self.validated_data['patient'],
+                                    temperature=self.validated_data['temperature'],
+                                    doctorNotes=self.validated_data['doctorNotes'],
+                                    prescriptionText=self.validated_data['prescriptionText'])
+        print(consultation.doctor.patients.contains(self.validated_data['patient']))
+        if not consultation.doctor.patients.contains(self.validated_data['patient']):
+            consultation.doctor.patients.add(self.validated_data['patient'])
+        consultation.save()
+        return consultation
 
-            consultations = validated_data.pop('consultations')
+    def update(self, instance, validated_data):
+        consultations_id_pool = []
 
-            consultations_with_same_profile_instance = Consultation.objects.filter(patient=instance.pk).values_list(
-                'consultationId', flat=True)
+        consultations = validated_data.pop('consultations')
 
-            for consultation in consultations:
+        consultations_with_same_profile_instance = Consultation.objects.filter(patient=instance.pk).values_list(
+            'consultationId', flat=True)
 
-                if "consultationId" in consultation.keys():
-                    if Consultation.objects.filter(id=consultation['consultationId']).exists():
-                        consultation_instance = Consultation.objects.get(id=consultation['consultationId'])
-                        consultation_instance = consultation.get('doctor', consultation_instance.doctor)
-                        consultation_instance = consultation.get('patient', consultation_instance.patient)
-                        consultation_instance = consultation.get('appointmentDate',
-                                                                 consultation_instance.appointmentDate)
-                        consultation_instance = consultation.get('prescriptionImage',
-                                                                 consultation_instance.prescriptionImage)
+        for consultation in consultations:
 
-                        consultation_instance = consultation.get('appointmentState',
-                                                                 consultation_instance.appointmentState)
+            if "consultationId" in consultation.keys():
+                if Consultation.objects.filter(id=consultation['consultationId']).exists():
+                    consultation_instance = Consultation.objects.get(id=consultation['consultationId'])
+                    consultation_instance = consultation.get('doctor', consultation_instance.doctor)
+                    consultation_instance = consultation.get('patient', consultation_instance.patient)
+                    consultation_instance = consultation.get('appointmentDate',
+                                                             consultation_instance.appointmentDate)
+                    consultation_instance = consultation.get('prescriptionImage',
+                                                             consultation_instance.prescriptionImage)
 
-                        consultation_instance.prescriptionText = consultation.get('prescriptionText',
-                                                                                  consultation_instance.prescriptionText)
-                        consultation_instance.doctorNotes = consultation.get('doctorNotes',
-                                                                             consultation_instance.doctorNotes)
-                        consultation_instance.temperature = consultation.get('temperature',
-                                                                             consultation_instance.temperature)
-                        consultation_instance.bloodPressure = consultation.get('bloodPressure',
-                                                                               consultation_instance.bloodPressure)
+                    consultation_instance = consultation.get('appointmentState',
+                                                             consultation_instance.appointmentState)
 
-                        consultation_instance.save()
-                        consultations_id_pool.append(consultation_instance.consultationId)
+                    consultation_instance.prescriptionText = consultation.get('prescriptionText',
+                                                                              consultation_instance.prescriptionText)
+                    consultation_instance.doctorNotes = consultation.get('doctorNotes',
+                                                                         consultation_instance.doctorNotes)
+                    consultation_instance.temperature = consultation.get('temperature',
+                                                                         consultation_instance.temperature)
+                    consultation_instance.bloodPressure = consultation.get('bloodPressure',
+                                                                           consultation_instance.bloodPressure)
 
-                    else:
-                        continue
+                    consultation_instance.save()
+                    consultations_id_pool.append(consultation_instance.consultationId)
+
                 else:
-                    consultations = Consultation.objects.create(patient=instance, **consultation)
-                    consultations_id_pool.append(consultations.consultationId)
+                    continue
+            else:
+                consultations = Consultation.objects.create(patient=instance, **consultation)
+                consultations_id_pool.append(consultations.consultationId)
 
-            for consultation_id in consultations_with_same_profile_instance:
-                if consultation_id not in consultations_id_pool:
-                    Consultation.objects.filter(pk=consultation_id).delete()
+        for consultation_id in consultations_with_same_profile_instance:
+            if consultation_id not in consultations_id_pool:
+                Consultation.objects.filter(pk=consultation_id).delete()
 
-            return instance
+        return instance

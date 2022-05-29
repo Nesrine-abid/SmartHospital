@@ -4,7 +4,7 @@ from django.conf import settings
 from rest_framework_simplejwt import views as jwt_views
 from EmployeeApp.views import RegistrationEmployeeView, EmployeeListView, EmployeeRetrieveView, \
     EmployeeUpdateDestroyView, LoginEmployeeView, api_create_department_view, departmentApi, DepartmentUpdateDelete, \
-    DoctorsListView, PharmacistListView, LaboratoryStaffListView
+    DoctorsListView, PharmacistListView, LaboratoryStaffListView, createConsultation, ConsultationListView
 
 urlpatterns = [
                   path('accounts/register/employee', RegistrationEmployeeView.as_view(), name='register'),
@@ -19,5 +19,8 @@ urlpatterns = [
                   path('employee/delete/<int:pk>', EmployeeUpdateDestroyView.as_view()),
                   path('department/<int:pk>', DepartmentUpdateDelete.as_view()),
                   path('department/create', api_create_department_view),
+                  path('consultation/create', createConsultation.as_view()),
                   path('departments', departmentApi),
+                  path('consultations', ConsultationListView.as_view()),
               ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+

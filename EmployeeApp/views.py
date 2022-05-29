@@ -77,7 +77,7 @@ class DoctorsListView(generics.ListCreateAPIView):
 # get all lab staff
 class LaboratoryStaffListView(generics.ListCreateAPIView):
     permission_classes = [IsAuthenticated, ]
-    queryset = Employee.objects.filter(role ="analysist")
+    queryset = Employee.objects.filter(role="analysist")
     serializer_class = EmployeeAccountsSerializer
 
 
@@ -100,3 +100,19 @@ class EmployeeRetrieveView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthenticated, ]
     queryset = Employee.objects.all()
     serializer_class = EmployeeSerializer
+
+
+class createConsultation(APIView):
+    def post(self, request):
+        serializer = ConsultationSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'msg': 'registred successfully',
+                             'data': serializer.data}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ConsultationListView(generics.ListCreateAPIView):
+    permission_classes = [IsAuthenticated, ]
+    queryset = Consultation.objects.all()
+    serializer_class = ConsultationSerializer

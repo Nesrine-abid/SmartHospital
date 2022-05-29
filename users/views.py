@@ -3,7 +3,7 @@ from django.http import Http404, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import status, generics
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.parsers import JSONParser, FileUploadParser
+from rest_framework.parsers import JSONParser, FileUploadParser, MultiPartParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -100,7 +100,7 @@ class VerifyOTP(APIView):
 
 
 class FileUpdateView(generics.RetrieveUpdateDestroyAPIView):
-    parser_class = (FileUploadParser,)
+    parser_classes = (JSONParser, MultiPartParser,)
     permission_classes = [IsAuthenticated, ]
     queryset = File.objects.all()
     serializer_class = FileSerializer
