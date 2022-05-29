@@ -28,6 +28,7 @@ class Consultation(models.Model):
     APPOINTMENT_STATE = (('available', 'available'),
                          ('unavailable', 'unavailable'))
     appointmentDate = models.DateField()
+    appointmentTime = models.TimeField()
     doctor = models.ForeignKey(Employee, on_delete=models.CASCADE,to_field="user_ptr_id", related_name='consultations')
     appointmentState = models.CharField(max_length=30, choices=APPOINTMENT_STATE)
     patient = models.ForeignKey(Patient, on_delete=models.CASCADE,to_field="user_ptr_id", related_name='consultations')
