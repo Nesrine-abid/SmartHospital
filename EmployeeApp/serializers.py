@@ -82,31 +82,23 @@ class ConsultationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Consultation
         fields = (
-            'consultationId', 'appointmentDate', 'appointmentTime', 'doctor', 'appointmentState', 'patient',
-            'appointmentState',
-            'prescriptionText', 'prescriptionImage',
-            'doctorNotes', 'temperature', 'bloodPressure')
+            'consultationId', 'appointmentDate', 'appointmentTime', 'doctor', 'patient')
 
     def save(self):
         consultation = Consultation(appointmentDate=self.validated_data['appointmentDate'],
-                                    appointmentState=self.validated_data['appointmentState'],
                                     appointmentTime=self.validated_data['appointmentTime'],
                                     doctor=self.validated_data['doctor'],
-                                    bloodPressure=self.validated_data['bloodPressure'],
-                                    patient=self.validated_data['patient'],
-                                    temperature=self.validated_data['temperature'],
-                                    doctorNotes=self.validated_data['doctorNotes'],
-                                    prescriptionText=self.validated_data['prescriptionText'])
+                                    patient=self.validated_data['patient'])
         if not consultation.doctor.patients.contains(self.validated_data['patient']):
             consultation.doctor.patients.add(self.validated_data['patient'])
         consultation.save()
         return consultation
 
+
 class ConsultationSerializerForUpdate(serializers.ModelSerializer):
     class Meta:
         model = Consultation
         fields = (
-            'consultationId', 'appointmentDate', 'appointmentTime', 'appointmentState',
-            'appointmentState',
+            'consultationId', 'appointmentDate', 'appointmentTime',
             'prescriptionText', 'prescriptionImage',
             'doctorNotes', 'temperature', 'bloodPressure')

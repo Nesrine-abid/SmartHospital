@@ -25,12 +25,9 @@ class Employee(User):
 
 class Consultation(models.Model):
     consultationId = models.AutoField(primary_key=True)
-    APPOINTMENT_STATE = (('available', 'available'),
-                         ('unavailable', 'unavailable'))
     appointmentDate = models.DateField()
     appointmentTime = models.TimeField()
     doctor = models.ForeignKey(Employee, on_delete=models.CASCADE,to_field="user_ptr_id", related_name='consultations')
-    appointmentState = models.CharField(max_length=30, choices=APPOINTMENT_STATE)
     patient = models.ForeignKey(Patient, on_delete=models.CASCADE,to_field="user_ptr_id", related_name='consultations')
     prescriptionImage = models.ImageField(upload_to='uploads/% Y/% m/% d/', null=True, blank=True)
     prescriptionText = models.CharField(max_length=100, null=True, blank=True)

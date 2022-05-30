@@ -23,6 +23,7 @@ urlpatterns = [
                   path('consultation/create', createConsultation.as_view()),
                   path('departments', departmentApi),
                   path('consultations', ConsultationListView.as_view()),
+                  path('consultations/<int:pk>', ConsultationUpdateDestroyView.as_view()),
                   path('consultations/delete/<int:pk>', ConsultationUpdateDestroyView.as_view()),
                   path('consultations/update/<int:pk>', ConsultationUpdate.as_view()),
               ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
