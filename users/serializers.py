@@ -3,13 +3,32 @@ from abc import ABC
 from rest_framework import serializers
 from rest_framework.parsers import FileUploadParser
 
-from .models import User, Information, Address, File, Patient
+from EmployeeApp.models import FileConsultation
+from .models import User, Information, Address, File, Patient, FileQrCodeCons, FileQrCodeHistory
 
 
 class FileSerializer(serializers.ModelSerializer):
     class Meta:
         model = File
         fields = ('fileId', 'file')
+
+
+class FileConsultationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FileConsultation
+        fields = ('fileConsultationId', 'fileConsultation')
+
+
+class FileQrCodeHistorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FileQrCodeHistory
+        fields = ('fileQrHId', 'fileQrCodeHistory')
+
+
+class FileQrCodeConsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FileQrCodeCons
+        fields = ('fileQrCodeConsId', 'fileQrCodeCons')
 
 
 class RegistrationSerializer(serializers.ModelSerializer):
@@ -69,12 +88,14 @@ class AddressSerializer(serializers.ModelSerializer):
 class InformationSerializer(serializers.ModelSerializer):
     address_ptr = AddressSerializer(required=True)
     file_ptr = FileSerializer(required=True)
+    fileqrcodehistory_ptr = FileQrCodeHistory()
+    fileqrcodecons_ptr = FileQrCodeCons()
 
     class Meta:
         model = Information
         fields = (
             'firstName', 'email', 'lastName', 'password', 'phone', 'cin', 'passport', 'nationality', 'date_of_Birth',
-            'gender', 'address_ptr', 'file_ptr')
+            'gender', 'address_ptr', 'file_ptr','fileqrcodehistory_ptr','fileqrcodecons_ptr')
 
 
 class InformationSerializerForUpdate(serializers.ModelSerializer):
@@ -102,7 +123,7 @@ class PatientSerializer(serializers.ModelSerializer):
     class Meta:
         model = Patient
         fields = ('information_ptr', 'user_ptr_id',
-                  'occupation', 'chronic_disease', 'allergy', 'consultations', 'staff_medical', 'is_Completed')
+                  'occupation', 'chronic_disease', 'allergy', 'consultations', 'staff_medical')
 
 
 class PatientSerializerForUpdate(serializers.ModelSerializer):

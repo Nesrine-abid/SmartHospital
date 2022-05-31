@@ -2,11 +2,11 @@ from enum import Enum
 
 from django.contrib.auth.models import UserManager
 from django.db import models
-from users.models import User, Information, Patient
+from users.models import *
 
 
 class Department(models.Model):
-    departmentName = models.CharField(unique=True,max_length=500)
+    departmentName = models.CharField(unique=True, max_length=500)
 
 
 class Employee(User):
@@ -18,18 +18,29 @@ class Employee(User):
     role = models.CharField(max_length=30, choices=ROLE)
     speciality = models.CharField(max_length=50)
     dateOfJoining = models.DateField()
-    department = models.ForeignKey(Department, on_delete=models.CASCADE,to_field="departmentName",blank=True,null=True,related_name='department_staff')
+    department = models.ForeignKey(Department, on_delete=models.CASCADE, to_field="departmentName", blank=True,
+                                   null=True, related_name='department_staff')
     patients = models.ManyToManyField(Patient, blank=True, related_name='staff_medical')
     is_verified = models.BooleanField(default=False)
 
 
-class Consultation(models.Model):
+class FileConsultation(models.Model):
+    fileConsultationId = models.AutoField(primary_key=True)
+    fileConsultation = models.FileField(blank=False, null=False)
+
+    def __str__(self):
+        return self.fileConsultation.name
+
+
+
+
+
+class Consultation(FileConsultation):
     consultationId = models.AutoField(primary_key=True)
     appointmentDate = models.DateField()
     appointmentTime = models.TimeField()
-    doctor = models.ForeignKey(Employee, on_delete=models.CASCADE,to_field="user_ptr_id", related_name='consultations')
-    patient = models.ForeignKey(Patient, on_delete=models.CASCADE,to_field="user_ptr_id", related_name='consultations')
-    prescriptionImage = models.ImageField(upload_to='uploads/% Y/% m/% d/', null=True, blank=True)
+    doctor = models.ForeignKey(Employee, on_delete=models.CASCADE, to_field="user_ptr_id", related_name='consultations')
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE, to_field="user_ptr_id", related_name='consultations')
     prescriptionText = models.CharField(max_length=100, null=True, blank=True)
     doctorNotes = models.CharField(max_length=100, null=True, blank=True)
     temperature = models.FloatField(null=True, blank=True)

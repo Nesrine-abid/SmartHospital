@@ -11,6 +11,22 @@ class File(models.Model):
         return self.file.name
 
 
+class FileQrCodeHistory(models.Model):
+    fileQrHId = models.AutoField(primary_key=True)
+    fileQrCodeHistory = models.FileField(blank=False, null=False)
+
+    def __str__(self):
+        return self.fileQrCodeHistory.name
+
+
+class FileQrCodeCons(models.Model):
+    fileQrCodeConsId = models.AutoField(primary_key=True)
+    fileQrCodeCons = models.FileField(blank=False, null=False)
+
+    def __str__(self):
+        return self.fileQrCodeCons.name
+
+
 class Address(models.Model):
     country = models.CharField(max_length=200)
     city = models.CharField(max_length=200)
@@ -18,7 +34,7 @@ class Address(models.Model):
     postalCode = models.CharField(max_length=200)
 
 
-class Information(Address, File, models.Model):
+class Information(Address, File, FileQrCodeHistory , FileQrCodeCons):
     informationId = models.AutoField(primary_key=True)
     GENDER = (('male', 'male'),
               ('female', 'female'))
@@ -79,7 +95,7 @@ class User(Information, AbstractBaseUser):
         return self.is_admin
 
 
-class Patient(User,models.Model):
+class Patient(User):
     is_verified = models.BooleanField(default=False)
     otp = models.CharField(max_length=200, null=True, blank=True)
     occupation = models.CharField(max_length=100, blank=True)
