@@ -5,7 +5,7 @@ from rest_framework_simplejwt import views as jwt_views
 from EmployeeApp.views import RegistrationEmployeeView, EmployeeListView, EmployeeRetrieveView, \
     EmployeeUpdateDestroyView, LoginEmployeeView, api_create_department_view, departmentApi, DepartmentUpdateDelete, \
     DoctorsListView, PharmacistListView, LaboratoryStaffListView, createConsultation, \
-    ConsultationListView, ConsultationUpdateDestroyView, ConsultationUpdate
+    ConsultationListView, ConsultationUpdateDestroyView, ConsultationUpdate, FileConsUpdateView
 
 urlpatterns = [
                   path('accounts/register/employee', RegistrationEmployeeView.as_view(), name='register'),
@@ -26,5 +26,7 @@ urlpatterns = [
                   path('consultations/<int:pk>', ConsultationUpdateDestroyView.as_view()),
                   path('consultations/delete/<int:pk>', ConsultationUpdateDestroyView.as_view()),
                   path('consultations/update/<int:pk>', ConsultationUpdate.as_view()),
+                  path('uploadFileConsultation/<int:pk>', FileConsUpdateView.as_view()),
+
               ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

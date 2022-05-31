@@ -10,6 +10,24 @@ class File(models.Model):
     def __str__(self):
         return self.file.name
 
+class FileQrCodeHistory(models.Model):
+    fileQrCodeHistoryId = models.AutoField(primary_key=True)
+    fileQrCodeHistory = models.FileField(blank=False, null=False)
+
+    def __str__(self):
+        return self.fileQrCodeHistory.name
+
+
+
+
+class FileQrCodeCons(models.Model):
+    fileQrCodeConsId = models.AutoField(primary_key=True)
+    fileQrCodeCons = models.FileField(blank=False, null=False)
+
+    def __str__(self):
+        return self.fileQrCodeCons.name
+
+
 
 class Address(models.Model):
     country = models.CharField(max_length=200)
@@ -18,7 +36,7 @@ class Address(models.Model):
     postalCode = models.CharField(max_length=200)
 
 
-class Information(Address, File, models.Model):
+class Information(Address, File, FileQrCodeHistory, FileQrCodeCons, models.Model):
     informationId = models.AutoField(primary_key=True)
     GENDER = (('male', 'male'),
               ('female', 'female'))

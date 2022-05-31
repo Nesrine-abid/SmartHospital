@@ -3,7 +3,7 @@ from abc import ABC
 from rest_framework import serializers
 from rest_framework.parsers import FileUploadParser
 
-from .models import User, Information, Address, File, Patient
+from .models import User, Information, Address, File, Patient, FileQrCodeCons, FileQrCodeHistory
 
 
 class FileSerializer(serializers.ModelSerializer):
@@ -11,6 +11,16 @@ class FileSerializer(serializers.ModelSerializer):
         model = File
         fields = ('fileId', 'file')
 
+class FileQrCodeHistorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FileQrCodeHistory
+        fields = ('fileQrCodeHistoryId', 'fileQrCodeHistory')
+
+
+class FileQrCodeConsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FileQrCodeCons
+        fields = ('fileQrCodeConsId', 'fileQrCodeCons')
 
 class RegistrationSerializer(serializers.ModelSerializer):
     password2 = serializers.CharField(style={"input_type": "password"}, write_only=True)
@@ -69,12 +79,14 @@ class AddressSerializer(serializers.ModelSerializer):
 class InformationSerializer(serializers.ModelSerializer):
     address_ptr = AddressSerializer(required=True)
     file_ptr = FileSerializer(required=True)
+    fileqrcodehistory_ptr = FileQrCodeHistorySerializer(required=True)
+    fileqrcodecons_ptr = FileQrCodeConsSerializer(required=True)
 
     class Meta:
         model = Information
         fields = (
             'firstName', 'email', 'lastName', 'password', 'phone', 'cin', 'passport', 'nationality', 'date_of_Birth',
-            'gender', 'address_ptr', 'file_ptr')
+            'gender', 'address_ptr', 'file_ptr','fileqrcodehistory_ptr','fileqrcodecons_ptr')
 
 
 class InformationSerializerForUpdate(serializers.ModelSerializer):

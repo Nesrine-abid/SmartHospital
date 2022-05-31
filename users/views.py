@@ -13,7 +13,8 @@ from EmployeeApp.models import Employee
 from .models import *
 from .emailVerification import send_otp_via_email
 from .serializers import RegistrationSerializer, PasswordChangeSerializer, PatientSerializer, VerifyAccountSerializer, \
-    PatientSerializerForUpdate, FileSerializer, ConfirmAccountSerializer
+    PatientSerializerForUpdate, FileSerializer, ConfirmAccountSerializer, FileQrCodeConsSerializer, \
+    FileQrCodeHistorySerializer
 
 
 def get_tokens_for_user(user):
@@ -106,6 +107,20 @@ class FileUpdateView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = FileSerializer
 
 
+class FileQrCodeHistoryUpdateView(generics.RetrieveUpdateDestroyAPIView):
+    parser_classes = (JSONParser, MultiPartParser,)
+    permission_classes = [IsAuthenticated, ]
+    queryset = FileQrCodeHistory.objects.all()
+    serializer_class = FileQrCodeHistorySerializer
+
+
+class FileQrCodeConsUpdateView(generics.RetrieveUpdateDestroyAPIView):
+    parser_classes = (JSONParser, MultiPartParser,)
+    permission_classes = [IsAuthenticated, ]
+    queryset = FileQrCodeCons.objects.all()
+    serializer_class = FileQrCodeConsSerializer
+
+
 class LoginView(APIView):
     def post(self, request):
         if 'email' not in request.data or 'password' not in request.data:
@@ -161,6 +176,7 @@ class PatientRetrieveView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthenticated, ]
     queryset = Patient.objects.all()
     serializer_class = PatientSerializer
+
 
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])

@@ -5,7 +5,7 @@ from rest_framework import serializers
 from rest_framework.parsers import FileUploadParser
 
 from EmployeeApp.models import *
-from users.serializers import InformationSerializer, InformationSerializerForUpdate
+from users.serializers import InformationSerializer, InformationSerializerForUpdate, PatientSerializer
 
 
 class DepartmentSerializer(serializers.ModelSerializer):
@@ -78,11 +78,30 @@ class RegistrationSerializer(serializers.ModelSerializer):
         return employee
 
 
-class ConsultationSerializer(serializers.ModelSerializer):
+class FileConsultationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FileConsultation
+        fields = ('fileConsultationId', 'fileConsultation')
+
+class ConsultationRetreiveSerializer(serializers.ModelSerializer):
+    fileconsultation_ptr = FileConsultationSerializer(required=False)
+    doctor = EmployeeSerializer(required=False)
+    patient = PatientSerializer(required=False)
+
     class Meta:
         model = Consultation
         fields = (
-            'consultationId', 'appointmentDate', 'appointmentTime', 'doctor', 'patient')
+            'consultationId', 'appointmentDate', 'appointmentTime', 'doctor', 'patient', 'fileconsultation_ptr')
+
+class ConsultationSerializer(serializers.ModelSerializer):
+    fileconsultation_ptr = FileConsultationSerializer(required=False)
+    doctor = EmployeeSerializer(required=False)
+    patient = PatientSerializer(required=False)
+
+    class Meta:
+        model = Consultation
+        fields = (
+            'consultationId', 'appointmentDate', 'appointmentTime', 'doctor', 'patient', 'fileconsultation_ptr')
 
     def save(self):
         consultation = Consultation(appointmentDate=self.validated_data['appointmentDate'],

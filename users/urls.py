@@ -1,6 +1,7 @@
 from django.urls import path
 from .views import RegistrationView, LoginView, ChangePasswordView, \
-    PatientListView, VerifyOTP, PatientUpdateDestroyView, PatientRetrieveView, FileUpdateView, ConfirmAccount
+    PatientListView, VerifyOTP, PatientUpdateDestroyView, PatientRetrieveView, FileUpdateView, ConfirmAccount, \
+    FileQrCodeHistoryUpdateView, FileQrCodeConsUpdateView
 from rest_framework_simplejwt import views as jwt_views
 
 app_name = 'users'
@@ -15,4 +16,7 @@ urlpatterns = [
     path('confirmAccount', ConfirmAccount.as_view()),
     path('patient/<int:pk>', PatientRetrieveView.as_view()),
     path('patient/update/<int:pk>', PatientUpdateDestroyView.as_view()),
-    path('upload/<int:pk>', FileUpdateView.as_view()), ]
+    path('upload/<int:pk>', FileUpdateView.as_view()),
+    path('uploadFileQrCodeHistory/<int:pk>', FileQrCodeHistoryUpdateView.as_view()),
+    path('uploadFileQrCodeCons/<int:pk>', FileQrCodeConsUpdateView.as_view()),
+]
