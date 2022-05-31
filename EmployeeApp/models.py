@@ -2,7 +2,7 @@ from enum import Enum
 
 from django.contrib.auth.models import UserManager
 from django.db import models
-from users.models import User, Information, Patient
+from users.models import User, Information, Patient, File
 
 
 class Department(models.Model):
@@ -15,7 +15,7 @@ class Employee(User):
             ('radiologist', 'radiologist'),
             ('pharmacist', 'pharmacist'),
             ('secretary', 'secretary'))
-    employeeId = models.AutoField(primary_key=True)
+    # employeeId = models.AutoField(primary_key=True)
     role = models.CharField(max_length=30, choices=ROLE)
     speciality = models.CharField(max_length=50)
     dateOfJoining = models.DateField()
@@ -23,15 +23,14 @@ class Employee(User):
     patients = models.ManyToManyField(Patient, blank=True, related_name='staff_medical')
 
 
-class Consultation(models.Model):
+class Consultation(File):
     consultationId = models.AutoField(primary_key=True)
     APPOINTMENT_STATE = (('available', 'available'),
                          ('unavailable', 'unavailable'))
     appointmentDate = models.DateField()
+    appointmentTime = models.TimeField()
     doctor = models.ForeignKey(Employee, on_delete=models.CASCADE, related_name='consultations')
-    appointmentState = models.CharField(max_length=30, choices=APPOINTMENT_STATE)
     patient = models.ForeignKey(Patient, on_delete=models.CASCADE, related_name='consultations')
-    prescriptionImage = models.ImageField(upload_to='uploads/% Y/% m/% d/', null=True, blank=True)
     prescriptionText = models.CharField(max_length=100, null=True, blank=True)
     doctorNotes = models.CharField(max_length=100, null=True, blank=True)
     temperature = models.FloatField(null=True, blank=True)

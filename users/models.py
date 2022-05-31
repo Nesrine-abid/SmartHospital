@@ -5,7 +5,7 @@ from django.db import models
 
 class File(models.Model):
     fileId = models.AutoField(primary_key=True)
-    file = models.FileField(blank=False, null=False)
+    file = models.FileField(blank=True, null=True)
 
     def __str__(self):
         return self.file.name
@@ -61,6 +61,7 @@ class MyUserManager(BaseUserManager):
 
 
 class User(Information, AbstractBaseUser):
+    userId = models.AutoField(primary_key=True)
     is_Patient = models.BooleanField(default=False)
     is_Employee = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
@@ -80,7 +81,7 @@ class User(Information, AbstractBaseUser):
 
 
 class Patient(User,models.Model):
-    patientId = models.AutoField(primary_key=True)
+    # patientId = models.AutoField(primary_key=True)
     is_verified = models.BooleanField(default=False)
     otp = models.CharField(max_length=200, null=True, blank=True)
     occupation = models.CharField(max_length=100, blank=True)

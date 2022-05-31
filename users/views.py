@@ -11,7 +11,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from .models import *
 from .emailVerification import send_otp_via_email
 from .serializers import RegistrationSerializer, PasswordChangeSerializer, PatientSerializer, VerifyAccountSerializer, \
-    PatientSerializerForUpdate, FileSerializer
+    PatientSerializerForUpdate, FileSerializer, RegistrationSerializerWeb, InformationSerializer, \
+    PatientSerializerForConsultation
 
 
 def get_tokens_for_user(user):
@@ -22,12 +23,24 @@ def get_tokens_for_user(user):
         'access': str(refresh.access_token),
     }
 
-
 # post a patient
 class RegistrationView(APIView):
     def post(self, request):
         serializer = RegistrationSerializer(data=request.data)
         print(serializer)
+        if serializer.is_valid():
+            serializer.save()
+            print(serializer.data['email'])
+            send_otp_via_email(serializer.data['email'])
+            return Response({'msg': 'registred successfully',
+                             'data': serializer.data}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class RegistrationViewWeb(APIView):
+    def post(self, request):
+        serializer = RegistrationSerializerWeb(data=request.data)
+        print(serializer)
+
         if serializer.is_valid():
             serializer.save()
             print(serializer.data['email'])
@@ -99,31 +112,16 @@ class VerifyOTP(APIView):
 
 class FileUpdateView(generics.RetrieveUpdateDestroyAPIView):
     parser_class = (FileUploadParser,)
-    permission_classes = [IsAuthenticated, ]
     queryset = File.objects.all()
     serializer_class = FileSerializer
 
-
-class LoginView(APIView):
-    def post(self, request):
-        if 'email' not in request.data or 'password' not in request.data:
-            return Response({'msg': 'Credentials missing'}, status=status.HTTP_400_BAD_REQUEST)
-        email = request.POST['email']
-        password = request.POST['password']
-        user = authenticate(request, email=email, password=password)
-        if user is not None:
-            login(request, user)
-            auth_data = get_tokens_for_user(request.user)
-            return Response({'msg': 'Login Success', **auth_data}, status=status.HTTP_200_OK)
-        return Response({'msg': 'Invalid Credentials'}, status=status.HTTP_401_UNAUTHORIZED)
-
-
-# class LogoutView(APIView):
-#     permission_classes = [IsAuthenticated, ]
-#     def post(self, request):
-#         logout(request)
-#         return Response({'msg': 'Successfully Logged out'}, status=status.HTTP_200_OK)
-
+    def post(self, request, *args, **kwargs):
+        file_serializer = FileSerializer(data=request.data)
+        if file_serializer.is_valid():
+            file_serializer.save()
+            return Response(file_serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(file_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class ChangePasswordView(APIView):
     permission_classes = [IsAuthenticated, ]
@@ -145,61 +143,33 @@ class PatientListView(generics.ListCreateAPIView):
 
 # delete patient by id and update patient by id (email dosent update)
 class PatientUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = [IsAuthenticated, ]
     queryset = Patient.objects.all()
     serializer_class = PatientSerializerForUpdate
+
+#get file by id
+
+class fileUpdateRetrive(generics.RetrieveUpdateDestroyAPIView):
+    parser_class = (FileUploadParser,)
+    queryset = File.objects.all()
+    serializer_class = FileSerializer
 
 
 # get patient by id (patient/id)
 class PatientRetrieveView(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = [IsAuthenticated, ]
     queryset = Patient.objects.all()
     serializer_class = PatientSerializer
 
-
-#
-# class PatientUpdateView(APIView):
-#     def get_object(self, pk):
-#         try:
-#             return User.objects.get(pk=pk)
-#         except User.DoesNotExist:
-#             raise Http404
-#
-#     def put(self, request, pk, format=None):
-#         patient = self.get_object(pk)
-#         serializer = PatientSerializer(patient, data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+# get patient by id (patient/id) for consultation
+class PatientRetrieveViewForConsultation(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Patient.objects.all()
+    serializer_class = PatientSerializerForConsultation
 
 
-# put method not allowed
-@api_view(['PUT'])
-@permission_classes([IsAuthenticated])
-def api_update_patient_view(request, id):
-    try:
-        patient = User.objects.get(pk=id)
-    except User.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
-    if request.method == 'PUT':
-        patient_serializer = PatientSerializer(patient, data=request.data)
-        data = {}
-        if patient_serializer.is_valid():
-            patient_serializer.save()
-            data["success"] = "updated successfully"
-            return Response(data=data)
-        return Response(patient_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@csrf_exempt
-@permission_classes([IsAuthenticated])
-def patientUpdateApi(request, id=0):
-    if request.method == 'PUT':
-        patient_data = JSONParser().parse(request)
-        patient = User.objects.get(patientId=patient_data['patientId'])
-        patients_serializer = PatientSerializer(patient, data=patient_data)
-        if patients_serializer.is_valid():
-            patients_serializer.save()
-            return JsonResponse("Updated Successfully", safe=False)
-        return JsonResponse("Failed to Update", patients_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+class InformationRetrieveView(generics.RetrieveUpdateDestroyAPIView):
+    # permission_classes = [IsAuthenticated, ]
+    queryset = Information.objects.all()
+    serializer_class = InformationSerializer
+
+
