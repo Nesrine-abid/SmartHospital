@@ -130,7 +130,15 @@ class PatientSerializerForUpdate(serializers.ModelSerializer):
                   'lastName', 'phone','nationality', 'date_of_Birth',
                   'gender','chronic_disease','city','postalCode',
                   'country','street','allergy','occupation')
+class PatientSerializerForGetAll(serializers.ModelSerializer):
 
+
+    class Meta:
+        model = Patient
+        fields = ('user_ptr_id','firstName',
+                  'lastName', 'phone','nationality', 'date_of_Birth',
+                  'gender','chronic_disease','city','postalCode',
+                  'country','street','allergy','occupation','file','staff_medical')
 
 class PatientSerializer(serializers.ModelSerializer):
     information_ptr = InformationSerializer(required=False)

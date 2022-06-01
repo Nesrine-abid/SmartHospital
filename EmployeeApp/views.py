@@ -5,6 +5,8 @@ from rest_framework.parsers import MultiPartParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+
+from EmployeeApp.emailVerification import send_email_for_employee
 from EmployeeApp.serializers import *
 from rest_framework import status, generics
 from django.contrib.auth import authenticate, login, logout
@@ -73,6 +75,12 @@ class EmployeeUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Employee.objects.all()
     serializer_class = EmployeeSerializerForUpdate
 
+class EmployeeUpdateDestroyViewForApprove(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Employee.objects.all()
+    serializer_class = EmployeeSerializerForUpdateForApprove
+
+
+
 # get employee by id to get file id (employee/id)
 class EmployeeGetFileRetrieveView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Employee.objects.all()
@@ -101,10 +109,15 @@ class ConsultationRetrieveView(generics.RetrieveUpdateDestroyAPIView):
         queryset = Consultation.objects.all().filter()
         serializer_class = ConsultationSerializerForUpdate
 
+# delete consultation by id and update patient by id (email dosent update)
+class ConsultationUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Consultation.objects.all()
+    serializer_class = ConsultationSerializer
+
 # get all consultations
 class ConsultationListView(generics.ListCreateAPIView):
     queryset = Consultation.objects.all()
-    serializer_class = ConsultationSerializer
+    serializer_class = ConsultationSerializerRetrive
 
 
 

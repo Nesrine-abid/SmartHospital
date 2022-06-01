@@ -12,7 +12,7 @@ from .models import *
 from .emailVerification import send_otp_via_email
 from .serializers import RegistrationSerializer, PasswordChangeSerializer, PatientSerializer, VerifyAccountSerializer, \
     PatientSerializerForUpdate, FileSerializer, RegistrationSerializerWeb, InformationSerializer, \
-    PatientSerializerForConsultation
+    PatientSerializerForConsultation, PatientSerializerForGetAll
 
 
 def get_tokens_for_user(user):
@@ -136,9 +136,9 @@ class ChangePasswordView(APIView):
 
 # get list of all patients
 class PatientListView(generics.ListCreateAPIView):
-    permission_classes = [IsAuthenticated, ]
     queryset = Patient.objects.all()
-    serializer_class = PatientSerializer
+    serializer_class = PatientSerializerForGetAll
+
 
 
 # delete patient by id and update patient by id (email dosent update)

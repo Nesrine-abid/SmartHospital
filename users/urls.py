@@ -12,7 +12,7 @@ urlpatterns = [
     path('accounts/verify', VerifyOTP.as_view(), name='verify'),
     path('accounts/change-password/patient', ChangePasswordView.as_view(), name='change-password'),
     path('accounts/token-refresh/', jwt_views.TokenRefreshView.as_view(), name='token_refresh'),
-    path('patient', PatientListView.as_view()),
+    path('patients', PatientListView.as_view()),
     path('patient/<int:pk>', PatientRetrieveView.as_view()),
     path('patient/consultation/<int:pk>', PatientRetrieveViewForConsultation.as_view()),
     path('file/<int:pk>', fileUpdateRetrive.as_view()),

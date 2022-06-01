@@ -1,23 +1,14 @@
 from django.core.mail import send_mail
-import random
 from django.conf import settings
 from django.core.cache import cache
 
-from users.models import Patient
+from .models import Employee
 
-
-def send_otp_via_email(email):
+def send_email_for_employee(email):
     if cache.get(email):
         return False
     subject = "your Smart hospital verification account email"
-    otp = random.randint(1000, 9999)
-    cache.set(email, otp, timeout=60)
-    message = f'Your code verification is {otp}'
+    message = f'Your Email is now verified by the admin you can log in '
     email_from = settings.EMAIL_HOST
     send_mail(subject, message, email_from, [email])
-    patient = Patient.objects.get(email=email)
-    patient.otp = otp
-    patient.save()
     return True
-
-

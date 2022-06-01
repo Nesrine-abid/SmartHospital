@@ -5,7 +5,7 @@ from rest_framework import serializers
 from rest_framework.parsers import FileUploadParser
 
 from EmployeeApp.models import *
-from users.serializers import InformationSerializer, InformationSerializerForUpdate, FileSerializer
+from users.serializers import InformationSerializer, InformationSerializerForUpdate, FileSerializer, PatientSerializer
 
 
 class DepartmentSerializer(serializers.ModelSerializer):
@@ -27,7 +27,7 @@ class EmployeeSerializerForGet(serializers.ModelSerializer):
 
     class Meta:
         model = Employee
-        fields = ('user_ptr_id', 'firstName','lastName', 'email', 'file')
+        fields = ('user_ptr_id', 'firstName','lastName', 'email', 'file','speciality','is_verified')
 
 class EmployeeSerializerForGetFile(serializers.ModelSerializer):
 
@@ -35,6 +35,12 @@ class EmployeeSerializerForGetFile(serializers.ModelSerializer):
     class Meta:
         model = Employee
         fields = ('user_ptr_id','fileId')
+class EmployeeSerializerForUpdateForApprove(serializers.ModelSerializer):
+
+
+    class Meta:
+        model = Employee
+        fields = ['is_verified']
 
 
 class EmployeeSerializerForUpdate(serializers.ModelSerializer):
@@ -93,16 +99,47 @@ class ConsultationSerializerForUpdate(serializers.ModelSerializer):
         fields = (
             'prescriptionText','file',
             'doctorNotes', 'temperature', 'bloodPressure')
+#
+# class ConsultationSerializerForCreate(serializers.ModelSerializer):
+#     parser_classes = [FileUploadParser]
+#     class Meta:
+#         model = Consultation
+#         fields = (
+#             'consultationId', 'appointmentDate','appointmentTime','patient','doctor')
+
 
 class ConsultationSerializerForCreate(serializers.ModelSerializer):
+
+    class Meta:
+        model = Consultation
+        fields = (
+            'consultationId', 'appointmentDate', 'appointmentTime', 'doctor', 'patient')
+
+    def save(self):
+        consultation = Consultation(appointmentDate=self.validated_data['appointmentDate'],
+                                    appointmentTime=self.validated_data['appointmentTime'],
+                                    patient=self.validated_data['patient'],
+                                    doctor=self.validated_data['doctor'],
+                                    )
+        consultation.doctor.patients.add(self.validated_data['patient'])
+        consultation.save()
+        return consultation
+
+
+class ConsultationSerializerRetrive(serializers.ModelSerializer):
     parser_classes = [FileUploadParser]
+    doctor = EmployeeSerializer(required=False)
+    patient = PatientSerializer(required=False)
 
 
     class Meta:
         model = Consultation
         fields = (
-            'consultationId', 'appointmentDate','appointmentTime','patient','doctor')
+            'consultationId', 'appointmentDate','appointmentTime', 'doctor', 'patient',
+            'prescriptionText','file',
+            'doctorNotes', 'temperature', 'bloodPressure',
 
+        )
 
 class ConsultationSerializer(serializers.ModelSerializer):
     parser_classes = [FileUploadParser]
@@ -114,50 +151,3 @@ class ConsultationSerializer(serializers.ModelSerializer):
             'consultationId', 'appointmentDate','appointmentTime', 'doctor', 'patient',
             'prescriptionText','file',
             'doctorNotes', 'temperature', 'bloodPressure')
-
-        # def update(self, instance, validated_data):
-        #     consultations_id_pool = []
-        #
-        #     consultations = validated_data.pop('consultations')
-        #
-        #     consultations_with_same_profile_instance = Consultation.objects.filter(patient=instance.pk).values_list(
-        #         'consultationId', flat=True)
-        #
-        #     for consultation in consultations:
-        #
-        #         if "consultationId" in consultation.keys():
-        #             if Consultation.objects.filter(id=consultation['consultationId']).exists():
-        #                 consultation_instance = Consultation.objects.get(id=consultation['consultationId'])
-        #                 consultation_instance = consultation.get('doctor', consultation_instance.doctor)
-        #                 consultation_instance = consultation.get('patient', consultation_instance.patient)
-        #                 consultation_instance = consultation.get('appointmentDate',
-        #                                                          consultation_instance.appointmentDate)
-        #                 consultation_instance = consultation.get('prescriptionImage',
-        #                                                          consultation_instance.prescriptionImage)
-        #
-        #                 consultation_instance = consultation.get('appointmentState',
-        #                                                          consultation_instance.appointmentState)
-        #
-        #                 consultation_instance.prescriptionText = consultation.get('prescriptionText',
-        #                                                                           consultation_instance.prescriptionText)
-        #                 consultation_instance.doctorNotes = consultation.get('doctorNotes',
-        #                                                                      consultation_instance.doctorNotes)
-        #                 consultation_instance.temperature = consultation.get('temperature',
-        #                                                                      consultation_instance.temperature)
-        #                 consultation_instance.bloodPressure = consultation.get('bloodPressure',
-        #                                                                        consultation_instance.bloodPressure)
-        #
-        #                 consultation_instance.save()
-        #                 consultations_id_pool.append(consultation_instance.consultationId)
-        #
-        #             else:
-        #                 continue
-        #         else:
-        #             consultations = Consultation.objects.create(patient=instance, **consultation)
-        #             consultations_id_pool.append(consultations.consultationId)
-        #
-        #     for consultation_id in consultations_with_same_profile_instance:
-        #         if consultation_id not in consultations_id_pool:
-        #             Consultation.objects.filter(pk=consultation_id).delete()
-        #
-        #     return instance

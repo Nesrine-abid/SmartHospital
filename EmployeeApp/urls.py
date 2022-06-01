@@ -5,7 +5,7 @@ from rest_framework_simplejwt import views as jwt_views
 from EmployeeApp.views import RegistrationEmployeeView, EmployeeListView, EmployeeRetrieveView, \
     EmployeeUpdateDestroyView, LoginEmployeeView, api_create_department_view, DepartmentUpdateDelete, \
     DepartmentListView, ConsultatitionRetrieveView, ConsultationRetrieveView, ConsultationListView, \
-    EmployeeGetFileRetrieveView
+    EmployeeGetFileRetrieveView, ConsultationUpdateDestroyView, EmployeeUpdateDestroyViewForApprove
 from users.views import ChangePasswordView
 
 
@@ -20,12 +20,16 @@ urlpatterns = [
                   path('employee/<int:pk>', EmployeeRetrieveView.as_view()),
                   path('employee/fileId/<int:pk>', EmployeeGetFileRetrieveView.as_view()),
                   path('employee/update/<int:pk>', EmployeeUpdateDestroyView.as_view()),
+                  path('employee/approve/update/<int:pk>', EmployeeUpdateDestroyViewForApprove.as_view()),
+                  path('employee/delete/<int:pk>', EmployeeUpdateDestroyView.as_view()),
                   path('employee/delete/<int:pk>', EmployeeUpdateDestroyView.as_view()),
                   path('department/update/<int:pk>', DepartmentUpdateDelete.as_view()),
+                  path('department/delete/<int:pk>', DepartmentUpdateDelete.as_view()),
                   path('department/<int:pk>', DepartmentUpdateDelete.as_view()),
                   path('department/create', api_create_department_view),
                   path('departments', DepartmentListView.as_view()),
                   path('consultation/<int:pk>', ConsultationRetrieveView.as_view()),
+                  path('consultation/delete/<int:pk>', ConsultationUpdateDestroyView.as_view()),
                   path('consultation/update/<int:pk>', ConsultationRetrieveView.as_view()),
                   path('consultations', ConsultationListView.as_view()),
                   path('consultation/create', ConsultatitionRetrieveView.as_view()),

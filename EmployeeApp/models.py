@@ -19,6 +19,7 @@ class Employee(User):
     role = models.CharField(max_length=30, choices=ROLE)
     speciality = models.CharField(max_length=50)
     dateOfJoining = models.DateField()
+    is_verified = models.BooleanField(default=False)
     department = models.ForeignKey(Department, on_delete=models.CASCADE,to_field="departmentName",blank=True,null=True,related_name='department_staff')
     patients = models.ManyToManyField(Patient, blank=True, related_name='staff_medical')
 
@@ -29,8 +30,8 @@ class Consultation(File):
                          ('unavailable', 'unavailable'))
     appointmentDate = models.DateField()
     appointmentTime = models.TimeField()
-    doctor = models.ForeignKey(Employee, on_delete=models.CASCADE, related_name='consultations')
-    patient = models.ForeignKey(Patient, on_delete=models.CASCADE, related_name='consultations')
+    doctor = models.ForeignKey(Employee, on_delete=models.CASCADE,to_field="user_ptr_id", related_name='consultations')
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE,to_field="user_ptr_id", related_name='consultations')
     prescriptionText = models.CharField(max_length=100, null=True, blank=True)
     doctorNotes = models.CharField(max_length=100, null=True, blank=True)
     temperature = models.FloatField(null=True, blank=True)
