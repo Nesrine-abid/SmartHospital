@@ -5,7 +5,7 @@ from rest_framework import serializers
 from rest_framework.parsers import FileUploadParser
 
 from EmployeeApp.models import *
-from users.serializers import InformationSerializer, InformationSerializerForUpdate, PatientSerializer
+from users.serializers import InformationSerializer, InformationSerializerForUpdate, PatientSerializer, FileSerializer
 
 
 class DepartmentSerializer(serializers.ModelSerializer):
@@ -26,9 +26,11 @@ class EmployeeSerializer(serializers.ModelSerializer):
 
 
 class EmployeeAccountsSerializer(serializers.ModelSerializer):
+    file_ptr = FileSerializer(required=False)
+
     class Meta:
         model = Employee
-        fields = ('firstName', 'lastName', 'email', 'role', 'speciality', 'is_verified', 'user_ptr_id')
+        fields = ('firstName', 'lastName', 'email', 'role', 'speciality', 'is_verified', 'user_ptr_id','file_ptr')
 
 
 class EmployeeSerializerForUpdate(serializers.ModelSerializer):
@@ -83,6 +85,7 @@ class FileConsultationSerializer(serializers.ModelSerializer):
         model = FileConsultation
         fields = ('fileConsultationId', 'fileConsultation')
 
+
 class ConsultationRetreiveSerializer(serializers.ModelSerializer):
     fileconsultation_ptr = FileConsultationSerializer(required=False)
     doctor = EmployeeSerializer(required=False)
@@ -91,13 +94,11 @@ class ConsultationRetreiveSerializer(serializers.ModelSerializer):
     class Meta:
         model = Consultation
         fields = (
-            'consultationId', 'appointmentDate', 'appointmentTime', 'doctor', 'patient', 'fileconsultation_ptr')
+            'consultationId', 'appointmentDate', 'appointmentTime', 'doctor', 'patient', 'fileconsultation_ptr','doctorNotes', 'temperature', 'bloodPressure')
+
 
 class ConsultationSerializer(serializers.ModelSerializer):
     fileconsultation_ptr = FileConsultationSerializer(required=False)
-    doctor = EmployeeSerializer(required=False)
-    patient = PatientSerializer(required=False)
-
     class Meta:
         model = Consultation
         fields = (
@@ -118,6 +119,5 @@ class ConsultationSerializerForUpdate(serializers.ModelSerializer):
     class Meta:
         model = Consultation
         fields = (
-            'consultationId', 'appointmentDate', 'appointmentTime',
-            'prescriptionText', 'prescriptionImage',
-            'doctorNotes', 'temperature', 'bloodPressure')
+            'consultationId',
+            'prescriptionText', 'doctorNotes', 'temperature', 'bloodPressure')

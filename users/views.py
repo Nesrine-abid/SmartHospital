@@ -11,7 +11,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from EmployeeApp.models import Employee
 from .models import *
-from .emailVerification import send_otp_via_email
+from .emailVerification import send_otp_via_email, send_confirmation_email
 from .serializers import RegistrationSerializer, PasswordChangeSerializer, PatientSerializer, VerifyAccountSerializer, \
     PatientSerializerForUpdate, FileSerializer, ConfirmAccountSerializer, FileQrCodeConsSerializer, \
     FileQrCodeHistorySerializer
@@ -223,6 +223,7 @@ class ConfirmAccount(APIView):
             employee = employee.first()
             employee.is_verified = True
             employee.save()
+            send_confirmation_email(serializer.data['email'])
             return Response({
                 'status': 200,
                 'message': 'account confirmed'
